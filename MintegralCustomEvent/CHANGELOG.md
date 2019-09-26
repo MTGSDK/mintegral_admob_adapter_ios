@@ -1,27 +1,34 @@
 # Mintegral - iOS Admob CustomEvent Changelog
+
+#### 5.7.1.0 -
+-Support Banner Ads
+- Using Mintegral package SDK v5.7.1 and above
+- available on iOS  8, 9, 10, and 11
+- base 1.9.0,  Adaptable to the SDK from 7.27.0 to 7.45.0  of Admob
+
 #### 1.9.0 -
 -Support Banner Ads
 - Using Mintegral package SDK v5.7.1 and above
 - available on iOS  8, 9, 10, and 11
-- base 1.4.0,  Adaptable to the latest SDK 7.27.0 of Admob
+- base 1.8.0,  Adaptable to the SDK from 7.27.0 to 7.45.0  of Admob
 
 #### 1.8.0 -
 -Support InterActive Ads
 - Using Mintegral package SDK v4.5.0 and above
 - available on iOS 8, 9, 10, and 11
-- base 1.4.0,  Adaptable to the latest SDK 7.27.0 of Admob
+- base 1.7.0,  Adaptable to the latest SDK 7.27.0 of Admob
 
 
 #### 1.7.0 -
 - Using Mintegral package SDK v4.0.0 and above
 - available on iOS 8, 9, 10, and 11
-- base 1.4.0,  Adaptable to the latest SDK 7.27.0 of Admob
+- base 1.6.0,  Adaptable to the latest SDK 7.27.0 of Admob
 
 #### 1.6.0 -
 - InterstitialVideo Ads  Internal logical replacement
 - Using Mintegral SDK v3.8.0 and above
 - available on iOS 8, 9, 10, and 11
-- base 1.4.0,  Adaptable to the latest SDK 7.27.0 of Admob
+- base 1.5.0,  Adaptable to the latest SDK 7.27.0 of Admob
 
 #### 1.5.0 -
 - Support GDPR
