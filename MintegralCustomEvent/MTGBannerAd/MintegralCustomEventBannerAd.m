@@ -63,7 +63,6 @@ static NSString *const MintegralEventErrorDomain = @"com.google.MintegralCustomE
     
 }
 
-#pragma mark --
 #pragma mark -- MTGBannerAdViewDelegate
 - (void)adViewLoadSuccess:(MTGBannerAdView *)adView {
     [self.delegate customEventBanner:self didReceiveAd:adView];
