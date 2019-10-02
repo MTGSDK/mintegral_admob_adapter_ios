@@ -21,9 +21,10 @@ static NSString *const customEventErrorDomain = @"com.mintegral.CustomEvent";
 
 +(void)sdkInitialized;
 
++(void)consentGDPR:(BOOL)consent;
+
 + (NSDictionary *)dictionaryWithJsonString:(NSString *)jsonString;
 
-+(void)setGDPRInfo:(NSDictionary *)info;
 
 
 

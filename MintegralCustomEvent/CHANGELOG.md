@@ -1,5 +1,14 @@
 # Mintegral - iOS Admob CustomEvent Changelog
 
+
+#### 5.8.1.0 -
+-Support Banner Ads
+- Using Mintegral package SDK v5.7.1 and above
+- available on iOS  8, 9, 10, and 11
+- base 5.7.1.0,  Adaptable to the SDK from 7.50.0  of Admob
+
+
+
 #### 5.7.1.0 -
 -Support Banner Ads
 - Using Mintegral package SDK v5.7.1 and above

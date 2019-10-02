@@ -6,7 +6,6 @@
 //
 
 #import "MintegralCustomEventRewardedVideo.h"
-#import "MintegralAdapterDelegate.h"
 #import "MintegralAdNetworkExtras.h"
 #import "MintegralHelper.h"
 
@@ -14,150 +13,223 @@
 #import <MTGSDKReward/MTGRewardAdManager.h>
 
 
-@interface MintegralCustomEventRewardedVideo () {
-    /// Connector from Google Mobile Ads SDK to receive ad configurations.
-    __weak id<GADMAdNetworkConnector> _connector;
-    
-    /// Connector from Google Mobile Ads SDK to receive reward-based video ad configurations.
-    __weak id<GADMRewardBasedVideoAdNetworkConnector> _rewardBasedVideoAdConnector;
-    
-    /// Handles delegate notifications.
-    MintegralAdapterDelegate *_adapterDelegate;
-
-    
-    /// Handle reward-based video ads from SDK.
-    MTGRewardAdManager *_rewardBasedVideoAd;
+@interface MintegralCustomEventRewardedVideo () <MTGRewardAdLoadDelegate,MTGRewardAdShowDelegate>{
+  
 
 }
 
-@property(nonatomic,copy)NSString *localAppId;
-@property(nonatomic,copy)NSString *localAppKey;
 @property(nonatomic,copy)NSString *localAdUnit;
 @property(nonatomic,copy)NSString *rewardId;
 @property(nonatomic,copy)NSString *userId;
+
+@property (nonatomic,copy) GADMediationRewardedLoadCompletionHandler rewardedLoadCompletionHandler;
+@property(nonatomic, weak, nullable) id<GADMediationRewardedAdEventDelegate> delegate;
 
 @end
 
 @implementation MintegralCustomEventRewardedVideo
 
-+ (NSString *)adapterVersion {
-    return MintegralAdapterVersion;
-}
 
-+ (Class<GADAdNetworkExtras>)networkExtrasClass {
+#pragma mark - GADMediationAdapter
+
++ (nullable Class<GADAdNetworkExtras>)networkExtrasClass {
+
     // OPTIONAL: Create your own class implementing GADAdNetworkExtras and return that class type
     // here for your publishers to use. This class does not use extras.
     
     return [MintegralAdNetworkExtras class];
 }
 
-
-
-#pragma mark Reward-based Video Ad Methods
-
-/// Initializes and returns a adapter with a reward based video ad connector.
-- (instancetype)initWithRewardBasedVideoAdNetworkConnector:
-(id<GADMRewardBasedVideoAdNetworkConnector>)connector {
-    if (!connector) {
-        return nil;
-    }
-    
-    self = [super init];
-    if (self) {
-        _rewardBasedVideoAdConnector = connector;
-        _adapterDelegate = [[MintegralAdapterDelegate alloc] initWithRewardBasedVideoAdAdapter:self
-                                                                rewardBasedVideoAdconnector:connector];
-    }
-    return self;
++ (GADVersionNumber)adSDKVersion {
+  NSString *versionString = MTGRewardVideoSDKVersion;
+  NSArray *versionComponents = [versionString componentsSeparatedByString:@"."];
+  GADVersionNumber version = {0};
+  if (versionComponents.count == 3) {
+    version.majorVersion = [versionComponents[0] integerValue];
+    version.minorVersion = [versionComponents[1] integerValue];
+    version.patchVersion = [versionComponents[2] integerValue];
+  }
+  return version;
 }
 
-/// Tells the adapter to set up reward based video ads. When set up fails, the SDK may try to
-/// set up the adapter again.
-- (void)setUp {
++ (GADVersionNumber)version {
+  NSString *versionString = MintegralAdapterVersion;
+  NSArray *versionComponents = [versionString componentsSeparatedByString:@"."];
+  GADVersionNumber version = {0};
+  if (versionComponents.count == 4) {
+    version.majorVersion = [versionComponents[0] integerValue];
+    version.minorVersion = [versionComponents[1] integerValue];
 
-    NSString *parameter = [_rewardBasedVideoAdConnector credentials][@"parameter"];
+    // Adapter versions have 2 patch versions. Multiply the first patch by 100.
+    version.patchVersion = [versionComponents[2] integerValue] * 100
+      + [versionComponents[3] integerValue];
+  }
+  return version;
+}
+
++ (void)setUpWithConfiguration:(GADMediationServerConfiguration *)configuration
+             completionHandler:(GADMediationAdapterSetUpCompletionBlock)completionHandler {
     
-    NSDictionary *mintegralInfoDict = [MintegralHelper dictionaryWithJsonString:parameter];
+//    NSString *appId = nil;
+//    NSString *appKey = nil;
+//    NSString *consentGDPR = nil;
+//
+//    for (GADMediationCredentials *credential in configuration.credentials) {
+//        if (credential.format == GADAdFormatRewarded) {
+//
+//            if (credential.settings[@"appId"]) {
+//                appId = credential.settings[@"appId"];
+//            }
+//            if (credential.settings[@"appKey"]) {
+//                appKey = credential.settings[@"appKey"];
+//            }
+//        }
+//    }
+//
+//    if (appId && appKey) {
+//
+//        NSError *error = [NSError errorWithDomain:kMintegralAdapterErrorDomain code:kGADErrorInvalidArgument userInfo:@{NSLocalizedDescriptionKey: @"Mintegral SDK init failed for loss the required aragument"}];
+//
+//        completionHandler(error);
+//        return;
+//    }
+//
+//    [self _initMintegralSDKWithAppId:appId appKey:appKey consentGDPR:consentGDPR];
+}
 
-    if ([mintegralInfoDict objectForKey:@"appId"]) {
-        _localAppId = [mintegralInfoDict objectForKey:@"appId"];
-    }
+
++(void)_initMintegralSDKWithAppId:(NSString *)appId appKey:(NSString *)appKey consentGDPR:(NSString *)consentGDPR{
     
-    if ([mintegralInfoDict objectForKey:@"appKey"]) {
-        _localAppKey = [mintegralInfoDict objectForKey:@"appKey"];
+    if ([consentGDPR isEqualToString:@"0"] ) {
+        [MintegralHelper consentGDPR:NO];
     }
 
-    if ([mintegralInfoDict objectForKey:@"unitId"]) {
-        _localAdUnit = [mintegralInfoDict objectForKey:@"unitId"];
-    }
-    
-    if ([mintegralInfoDict objectForKey:@"rewardId"]) {
-        _rewardId = [mintegralInfoDict objectForKey:@"rewardId"];
-    }
-
-    id<GADMRewardBasedVideoAdNetworkConnector> strongConnector = _rewardBasedVideoAdConnector;
-    if (!_localAppId || !_localAppKey || !_localAdUnit) {
-
-
-        NSError *error = [NSError errorWithDomain:kMintegralAdapterErrorDomain code:kGADErrorInvalidArgument userInfo:@{NSLocalizedDescriptionKey: @"Mintegral SDK init failed for the invalid Aragument"}];
-
-        [strongConnector adapter:self didFailToSetUpRewardBasedVideoAdWithError:error];
-        return;
+    if ([consentGDPR isEqualToString:@"1"] ) {
+        [MintegralHelper consentGDPR:YES];
     }
 
     if (![MintegralHelper isSDKInitialized]) {
-        
-        [MintegralHelper setGDPRInfo:mintegralInfoDict];
-        //init SDK
-        [[MTGSDK sharedInstance] setAppID:_localAppId ApiKey:_localAppKey];
+
+        [[MTGSDK sharedInstance] setAppID:appId ApiKey:appKey];
         [MintegralHelper sdkInitialized];
     }
 
-    _rewardBasedVideoAd = [MTGRewardAdManager sharedInstance];
-
-    [strongConnector adapterDidSetUpRewardBasedVideoAd:self];
-}
-
-/// Tells the adapter to request a reward based video ad, if checkAdAvailability is true. Otherwise,
-/// the connector notifies the adapter that the reward based video ad failed to load.
-- (void)requestRewardBasedVideoAd {
-
-    [_rewardBasedVideoAd loadVideo:_localAdUnit delegate:(id<MTGRewardAdLoadDelegate>)_adapterDelegate];
 }
 
 
 
-/// Tells the adapter to present the reward based video ad with the provided view controller, if the
-/// ad is available. Otherwise, logs a message with the reason for failure.
-- (void)presentRewardBasedVideoAdWithRootViewController:(UIViewController *)viewController {
+#pragma mark - GADMediationRewardedAd
+- (void)loadRewardedAdForAdConfiguration:
+(nonnull GADMediationRewardedAdConfiguration *)adConfiguration
+           completionHandler:
+(nonnull GADMediationRewardedLoadCompletionHandler)completionHandler{
 
-    MintegralAdNetworkExtras *extras = [_rewardBasedVideoAdConnector networkExtras];
-    NSString *userId = extras.userId;
-    
-    if ([_rewardBasedVideoAd isVideoReadyToPlay:_localAdUnit]) {
-        // The reward based video ad is available, present the ad.
-        [_rewardBasedVideoAd showVideo:_localAdUnit withRewardId:_rewardId userId:userId delegate:(id<MTGRewardAdShowDelegate>)_adapterDelegate viewController:viewController];
-    } else {
-        // Because publishers are expected to check that an ad is available before trying to show one,
-        // the above conditional should always hold true. If for any reason the adapter is not ready to
-        // present an ad, however, it should log an error with reason for failure.
-        NSLog(@"No ads to show ...  log from MobvsitaAdapter");
+    NSString *parameter = adConfiguration.credentials.settings[@"parameter"];
+    NSDictionary *dict = [MintegralHelper dictionaryWithJsonString:parameter];
+    NSString *appId = [dict objectForKey:@"appId"];
+    NSString *appKey = [dict objectForKey:@"appKey"];
+    NSString *consentGDPR = [dict objectForKey:@"consent"];
+    [MintegralCustomEventRewardedVideo _initMintegralSDKWithAppId:appId appKey:appKey consentGDPR:consentGDPR];
+
+    self.localAdUnit = adConfiguration.credentials.settings[@"unitId"];
+    MintegralAdNetworkExtras *extraItem = adConfiguration.extras;
+    self.userId = extraItem.userId;
+
+    self.rewardedLoadCompletionHandler = completionHandler;
+    [[MTGRewardAdManager sharedInstance] loadVideo:_localAdUnit delegate:self];
+}
+
+- (void)presentFromViewController:(nonnull UIViewController *)viewController {
+
+    if ([[MTGRewardAdManager sharedInstance] isVideoReadyToPlay:self.localAdUnit]) {
+
+        NSString *rewardId = self.rewardId;
+        NSString *userId = self.userId;
+        
+        [[MTGRewardAdManager sharedInstance] showVideo:self.localAdUnit withRewardId:rewardId userId:userId delegate:self viewController:viewController];
+    }else{
+        NSError *error =
+          [NSError errorWithDomain:kMintegralAdapterErrorDomain
+                              code:0
+                          userInfo:@{NSLocalizedDescriptionKey : @"Unable to display ad."}];
+        [self.delegate didFailToPresentWithError:error];
     }
 }
 
+#pragma mark - MTGRewardAdLoadDelegate
 
-- (BOOL)hasAdAvailable
-{
-    return [_rewardBasedVideoAd isVideoReadyToPlay:_localAdUnit];
-}
-
-
-
-/// Tells the adapter to remove itself as a delegate or notification observer from the underlying ad
-/// network SDK.
-- (void)stopBeingDelegate{
+- (void)onAdLoadSuccess:(nullable NSString *)unitId{
     
 }
+
+- (void)onVideoAdLoadSuccess:(nullable NSString *)unitId{
+
+    self.delegate = self.rewardedLoadCompletionHandler(self,nil);
+}
+
+- (void)onVideoAdLoadFailed:(nullable NSString *)unitId error:(nonnull NSError *)error{
+
+    self.rewardedLoadCompletionHandler(nil, error);
+}
+
+
+#pragma mark - MTGRewardAdShowDelegate
+
+- (void)onVideoAdShowSuccess:(nullable NSString *)unitId{
+    
+    [self.delegate willPresentFullScreenView];
+    [self.delegate reportImpression];
+    
+    [self.delegate didStartVideo];
+
+}
+
+- (void)onVideoAdShowFailed:(nullable NSString *)unitId withError:(nonnull NSError *)error{
+    
+}
+
+- (void) onVideoPlayCompleted:(nullable NSString *)unitId{
+    
+    [self.delegate didEndVideo];
+}
+
+- (void) onVideoEndCardShowSuccess:(nullable NSString *)unitId{
+    
+}
+
+- (void)onVideoAdClicked:(nullable NSString *)unitId{
+    [self.delegate reportClick];
+}
+
+- (void)onVideoAdDismissed:(nullable NSString *)unitId withConverted:(BOOL)converted withRewardInfo:(nullable MTGRewardAdInfo *)rewardInfo{
+    
+    GADAdReward * reward = [[GADAdReward alloc] initWithRewardType:rewardInfo.rewardName
+                                                      rewardAmount:[NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%ld",(long)rewardInfo.rewardAmount]]];
+    [self.delegate didRewardUserWithReward:reward];
+}
+
+- (void)onVideoAdDidClosed:(nullable NSString *)unitId{
+    
+}
+
+
+
+
+
+
+
+//- (BOOL)hasAdAvailable
+//{
+//    return [[MTGRewardAdManager sharedInstance] isVideoReadyToPlay:_localAdUnit];
+//}
+//
+//
+//
+///// Tells the adapter to remove itself as a delegate or notification observer from the underlying ad
+///// network SDK.
+//- (void)stopBeingDelegate{
+//
+//}
 
 
 @end

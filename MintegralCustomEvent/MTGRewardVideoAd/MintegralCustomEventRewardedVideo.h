@@ -9,13 +9,7 @@
 #import <GoogleMobileAds/GoogleMobileAds.h>
 #import <Foundation/Foundation.h>
 
-#import "MintegralAdapterProtocol.h"
-
-
-@interface MintegralCustomEventRewardedVideo : NSObject<GADMRewardBasedVideoAdNetworkAdapter,MintegralAdapterDataProvider>
-
-
-- (BOOL)hasAdAvailable;
+@interface MintegralCustomEventRewardedVideo : NSObject<GADMediationAdapter,GADMediationRewardedAd>
 
 
 @end
