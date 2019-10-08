@@ -67,36 +67,6 @@
   return version;
 }
 
-+ (void)setUpWithConfiguration:(GADMediationServerConfiguration *)configuration
-             completionHandler:(GADMediationAdapterSetUpCompletionBlock)completionHandler {
-    
-//    NSString *appId = nil;
-//    NSString *appKey = nil;
-//    NSString *consentGDPR = nil;
-//
-//    for (GADMediationCredentials *credential in configuration.credentials) {
-//        if (credential.format == GADAdFormatRewarded) {
-//
-//            if (credential.settings[@"appId"]) {
-//                appId = credential.settings[@"appId"];
-//            }
-//            if (credential.settings[@"appKey"]) {
-//                appKey = credential.settings[@"appKey"];
-//            }
-//        }
-//    }
-//
-//    if (appId && appKey) {
-//
-//        NSError *error = [NSError errorWithDomain:kMintegralAdapterErrorDomain code:kGADErrorInvalidArgument userInfo:@{NSLocalizedDescriptionKey: @"Mintegral SDK init failed for loss the required aragument"}];
-//
-//        completionHandler(error);
-//        return;
-//    }
-//
-//    [self _initMintegralSDKWithAppId:appId appKey:appKey consentGDPR:consentGDPR];
-}
-
 
 +(void)_initMintegralSDKWithAppId:(NSString *)appId appKey:(NSString *)appKey consentGDPR:(NSString *)consentGDPR{
     
@@ -131,7 +101,7 @@
     NSString *consentGDPR = [dict objectForKey:@"consent"];
     [MintegralCustomEventRewardedVideo _initMintegralSDKWithAppId:appId appKey:appKey consentGDPR:consentGDPR];
 
-    self.localAdUnit = adConfiguration.credentials.settings[@"unitId"];
+    self.localAdUnit = dict[@"unitId"];
     MintegralAdNetworkExtras *extraItem = adConfiguration.extras;
     self.userId = extraItem.userId;
 
