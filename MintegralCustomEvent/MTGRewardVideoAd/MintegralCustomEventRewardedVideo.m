@@ -180,6 +180,9 @@
 
 - (void)onVideoAdDidClosed:(nullable NSString *)unitId{
     
+    [self.delegate willDismissFullScreenView];
+    [self.delegate didDismissFullScreenView];
+
 }
 
 
