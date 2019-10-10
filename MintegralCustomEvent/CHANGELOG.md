@@ -1,6 +1,12 @@
 # Mintegral - iOS Admob CustomEvent Changelog
 
 
+#### 5.8.1.3 -
+- Fixed rewardVideo customEvent bug
+- Using Mintegral package SDK v5.8.1
+- available on iOS  8, 9, 10, and 11
+- base 5.8.1.2,  Adaptable to the SDK from 7.50.0  of Admob
+
 #### 5.8.1.2 -
 - Support Banner Ads / Interstitial / InterstitialVideo via CocoaPods
 - Using Mintegral package SDK v5.8.1

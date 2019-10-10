@@ -7,7 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
-#define MintegralAdapterVersion  @"5.8.1.2"
+#define MintegralAdapterVersion  @"5.8.1.3"
 
 
 

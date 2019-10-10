@@ -172,7 +172,11 @@
 }
 
 - (void)onVideoAdDismissed:(nullable NSString *)unitId withConverted:(BOOL)converted withRewardInfo:(nullable MTGRewardAdInfo *)rewardInfo{
-    
+
+    if (!converted) {
+        return;
+    }
+
     GADAdReward * reward = [[GADAdReward alloc] initWithRewardType:rewardInfo.rewardName
                                                       rewardAmount:[NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%ld",(long)rewardInfo.rewardAmount]]];
     [self.delegate didRewardUserWithReward:reward];
@@ -186,23 +190,6 @@
 }
 
 
-
-
-
-
-
-//- (BOOL)hasAdAvailable
-//{
-//    return [[MTGRewardAdManager sharedInstance] isVideoReadyToPlay:_localAdUnit];
-//}
-//
-//
-//
-///// Tells the adapter to remove itself as a delegate or notification observer from the underlying ad
-///// network SDK.
-//- (void)stopBeingDelegate{
-//
-//}
 
 
 @end
