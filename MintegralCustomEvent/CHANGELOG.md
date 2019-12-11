@@ -1,5 +1,10 @@
 # Mintegral - iOS Admob CustomEvent Changelog
 
+#### 5.8.4.1
+go back to add old admob old reward api
+
+#### 5.8.4.0
+support mintegral sdk 5.8.4
 
 #### 5.8.1.3 -
 - Fixed rewardVideo customEvent bug
