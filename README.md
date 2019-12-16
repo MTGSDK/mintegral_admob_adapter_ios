@@ -37,11 +37,12 @@ CocoaPods is used to install and manage dependencies in existing Xcode projects.
 
     # for Interstitial ad
     pod 'MintegralAdSDKAdapterForAdmob/InterstitialAdAdapter' 
+    ```
 
 
     # for Banner ad
     pod 'MintegralAdSDKAdapterForAdmob/BannerAdAdapter' 
-
+    
     ```
 
 4. Save the file.
@@ -60,3 +61,7 @@ CocoaPods is used to install and manage dependencies in existing Xcode projects.
 
 7. Open your app's `.xcworkspace` file to launch Xcode.
    Use this file for all development on your app.
+
+## [Changelog](./CHANGELOG.md)
+
+
