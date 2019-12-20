@@ -117,9 +117,8 @@
 
 - (void)onInterstitialVideoAdClick:(MTGInterstitialVideoAdManager *_Nonnull)adManager{
     
-    if (self.delegate && [self.delegate respondsToSelector:@selector(customEventInterstitialWasClicked:)]) {
-        [self.delegate customEventInterstitialWasClicked:self];
-    }
+    [self.delegate customEventInterstitialWasClicked:self];
+    [self.delegate customEventInterstitialWillLeaveApplication:self];
 }
 
 - (void)checkVideoReady{
