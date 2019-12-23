@@ -1,7 +1,10 @@
 # Mintegral - iOS Admob CustomEvent Changelog
 
+#### 5.8.6.0
+support sdk 5.8.6
+
 #### 5.8.5.0
-add admob customEventInterstitialWillLeaveApplication method after mintegral interstitial video click
+support sdk 5.8.5
 
 #### 5.8.4.2
 add admob customEventInterstitialWillLeaveApplication method after mintegral interstitial video click
