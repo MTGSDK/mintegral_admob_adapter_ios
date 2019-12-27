@@ -1,5 +1,8 @@
 # Mintegral - iOS Admob CustomEvent Changelog
 
+#### 5.8.7.0
+support sdk 5.8.7
+
 #### 5.8.6.0
 support sdk 5.8.6
 
