@@ -41,6 +41,9 @@ CocoaPods is used to install and manage dependencies in existing Xcode projects.
     # for Banner ad
     pod 'MintegralAdSDKAdapterForAdmob/BannerAdAdapter' 
     
+    # for native ad
+    pod 'MintegralAdSDKAdapterForAdmob/NativeAdAdapter'
+    
     ```
 
 4. Save the file.
