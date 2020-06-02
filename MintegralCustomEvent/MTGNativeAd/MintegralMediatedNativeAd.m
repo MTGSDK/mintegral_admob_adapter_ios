@@ -7,6 +7,7 @@
 //
 
 #import "MintegralMediatedNativeAd.h"
+#import <MTGSDK/MTGSDK.h>
 
 @interface MintegralMediatedNativeAd ()<MTGNativeAdManagerDelegate,MTGMediaViewDelegate>
 
@@ -25,7 +26,7 @@
 
 @implementation MintegralMediatedNativeAd
 
-- (nullable instancetype)initWithNativeManager:(nonnull MTGNativeAdManager *)nativeManager mtgCampaign:(nonnull MTGCampaign *)campaign  withUnitId:(NSString *)unitId videoSupport:(BOOL)videoSupport{
+- (nullable instancetype)initWithNativeManager:(nonnull id )nativeManager mtgCampaign:(nonnull id)campaign  withUnitId:(NSString *)unitId videoSupport:(BOOL)videoSupport{
     
     if (!campaign) {
         return nil;
@@ -34,20 +35,20 @@
     self = [super init];
     if (self) {
         
-        _mtgNativeAdManager = nativeManager;
+        _mtgNativeAdManager = (MTGNativeAdManager *)nativeManager;
         _mtgNativeAdManager.delegate = self;
         
-        _campaign = campaign;
-        if (campaign.imageUrl) {
+        _campaign = (MTGCampaign *)campaign;
+        if (_campaign.imageUrl) {
             UIImage *img;
-            NSData *imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:campaign.imageUrl]];
+            NSData *imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:_campaign.imageUrl]];
             img = [UIImage imageWithData:imgData];
             _mappedImages = @[ [[GADNativeAdImage alloc] initWithImage:img] ];
         }
         
         NSURL *iconURL = nil;
-        if (campaign.iconUrl) {
-            iconURL = [[NSURL alloc] initWithString:campaign.iconUrl];
+        if (_campaign.iconUrl) {
+            iconURL = [[NSURL alloc] initWithString:_campaign.iconUrl];
             _mappedLogo = [[GADNativeAdImage alloc] initWithURL:iconURL scale:1.0];
         }
         

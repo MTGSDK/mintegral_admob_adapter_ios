@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import <MTGSDK/MTGSDK.h>
 #import <GoogleMobileAds/GADNativeAd.h>
 
 
@@ -19,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (null_unspecified instancetype)init NS_UNAVAILABLE;
 
 
-- (nullable instancetype)initWithNativeManager:(nonnull MTGNativeAdManager *)nativeManager mtgCampaign:(nonnull MTGCampaign *)campaign  withUnitId:(nonnull NSString *)unitId videoSupport:(BOOL)videoSupport NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithNativeManager:(nonnull  id)nativeManager mtgCampaign:(nonnull id)campaign  withUnitId:(nonnull NSString *)unitId videoSupport:(BOOL)videoSupport NS_DESIGNATED_INITIALIZER;
 
 @end
 
