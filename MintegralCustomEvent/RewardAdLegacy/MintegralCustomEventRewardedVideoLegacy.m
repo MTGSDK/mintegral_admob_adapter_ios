@@ -22,7 +22,7 @@
     __weak id<GADMRewardBasedVideoAdNetworkConnector> _rewardBasedVideoAdConnector;
     
     /// Handles delegate notifications.
-    MintegralAdapterDelegate *_adapterDelegate;
+    MintegralAdapterDelegate<MTGRewardAdShowDelegate> *_adapterDelegate;
 
     
     /// Handle reward-based video ads from SDK.
@@ -33,6 +33,7 @@
 @property(nonatomic,copy)NSString *localAppId;
 @property(nonatomic,copy)NSString *localAppKey;
 @property(nonatomic,copy)NSString *localAdUnit;
+@property(nonatomic,copy)NSString *localAdPlacement;
 @property(nonatomic,copy)NSString *rewardId;
 @property(nonatomic,copy)NSString *userId;
 
@@ -65,7 +66,7 @@
     self = [super init];
     if (self) {
         _rewardBasedVideoAdConnector = connector;
-        _adapterDelegate = [[MintegralAdapterDelegate alloc] initWithRewardBasedVideoAdAdapter:self
+        _adapterDelegate = (id<MTGRewardAdShowDelegate>)[[MintegralAdapterDelegate alloc] initWithRewardBasedVideoAdAdapter:self
                                                                 rewardBasedVideoAdconnector:connector];
     }
     return self;
@@ -89,6 +90,10 @@
 
     if ([mintegralInfoDict objectForKey:@"unitId"]) {
         _localAdUnit = [mintegralInfoDict objectForKey:@"unitId"];
+    }
+    
+    if ([mintegralInfoDict objectForKey:@"placementId"]) {
+        _localAdPlacement = [mintegralInfoDict objectForKey:@"placementId"];
     }
     
     if ([mintegralInfoDict objectForKey:@"rewardId"]) {
@@ -130,7 +135,7 @@
 /// the connector notifies the adapter that the reward based video ad failed to load.
 - (void)requestRewardBasedVideoAd {
 
-    [_rewardBasedVideoAd loadVideo:_localAdUnit delegate:(id<MTGRewardAdLoadDelegate>)_adapterDelegate];
+    [_rewardBasedVideoAd loadVideoWithPlacementId:_localAdPlacement unitId:_localAdUnit delegate:(id<MTGRewardAdLoadDelegate>)_adapterDelegate];
 }
 
 
@@ -142,9 +147,9 @@
     MintegralAdNetworkExtras *extras = [_rewardBasedVideoAdConnector networkExtras];
     NSString *userId = extras.userId;
     
-    if ([_rewardBasedVideoAd isVideoReadyToPlay:_localAdUnit]) {
+    if ([_rewardBasedVideoAd isVideoReadyToPlayWithPlacementId:_localAdPlacement unitId:_localAdUnit]) {
         // The reward based video ad is available, present the ad.
-        [_rewardBasedVideoAd showVideo:_localAdUnit withRewardId:_rewardId userId:userId delegate:(id<MTGRewardAdShowDelegate>)_adapterDelegate viewController:viewController];
+        [_rewardBasedVideoAd showVideoWithPlacementId:_localAdPlacement unitId:_localAdUnit withRewardId:_rewardId userId:userId delegate:_adapterDelegate viewController:viewController];
     } else {
         // Because publishers are expected to check that an ad is available before trying to show one,
         // the above conditional should always hold true. If for any reason the adapter is not ready to
@@ -156,7 +161,7 @@
 
 - (BOOL)hasAdAvailable
 {
-    return [_rewardBasedVideoAd isVideoReadyToPlay:_localAdUnit];
+    return [_rewardBasedVideoAd isVideoReadyToPlayWithPlacementId:_localAdPlacement unitId:_localAdUnit];
 }
 
 

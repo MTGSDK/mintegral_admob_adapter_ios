@@ -1,9 +1,9 @@
 Pod::Spec.new do |spec|
 
-  sdkVersion = '5.8.8'
+  sdkVersion = '6.2.0'
   
   spec.name         = 'MintegralAdSDKAdapterForAdmob'
-  spec.version      = '5.8.8.0'
+  spec.version      =  sdkVersion + '.0'
   spec.summary      = 'Mintegral Network CustomEvent for Admob Ad Mediation'
   spec.homepage     = 'http://cdn-adn.rayjump.com/cdn-adn/v2/markdown_v2/index.html?file=sdk-m_sdk-ios&lang=en'
   spec.description  = <<-DESC   
@@ -23,14 +23,12 @@ Pod::Spec.new do |spec|
 # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
 spec.default_subspecs =  'RewardVideoAdAdapter'
 
-# spec.subspec 'NativeAdAdapter' do |ss|
+spec.subspec 'NativeAdAdapter' do |ss|
 
-#   ss.dependency 'Google-Mobile-Ads-SDK', '~> 7.x.x'
-#   ss.dependency  'MintegralAdSDK/NativeAd', sdkVersion
-
-#   ss.source_files = 'MintegralCustomEvent/MTGCommon/*.{h,m}','MintegralCustomEvent/MTGNativeAd/*.{h,m}'
-  
-# end
+  ss.dependency 'Google-Mobile-Ads-SDK', '~> 7.x.x'
+  ss.dependency  'MintegralAdSDK/NativeAd', sdkVersion
+  ss.source_files = 'MintegralCustomEvent/MTGCommon/*.{h,m}','MintegralCustomEvent/MTGNativeAd/*.{h,m}'
+end
 
 spec.subspec 'InterstitialVideoAdAdapter' do |ss|
 

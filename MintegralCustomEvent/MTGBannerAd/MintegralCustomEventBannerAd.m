@@ -17,7 +17,8 @@ static NSString *const MintegralEventErrorDomain = @"com.google.MintegralCustomE
 
 /// The Sample Ad Network banner.
 @property(nonatomic, strong) MTGBannerAdView *bannerAdView;
-@property (nonatomic, readwrite, copy) NSString * localNativeUnitId;
+@property (nonatomic, copy) NSString * unitId;
+@property (nonatomic, copy) NSString * placementId;
 
 @end
 
@@ -60,11 +61,15 @@ static NSString *const MintegralEventErrorDomain = @"com.google.MintegralCustomE
     }
     
     if ([mintegralInfoDict objectForKey:@"unitId"]) {
-        _localNativeUnitId = [mintegralInfoDict objectForKey:@"unitId"];
+        self.unitId = [mintegralInfoDict objectForKey:@"unitId"];
+    }
+    
+    if ([mintegralInfoDict objectForKey:@"placementId"]) {
+        self.placementId = [mintegralInfoDict objectForKey:@"placementId"];
     }
     
     UIViewController * vc =  [UIApplication sharedApplication].keyWindow.rootViewController;
-    _bannerAdView = [[MTGBannerAdView alloc]initBannerAdViewWithAdSize:adSize.size unitId:_localNativeUnitId rootViewController:vc];
+    _bannerAdView = [[MTGBannerAdView alloc] initBannerAdViewWithAdSize:adSize.size placementId:self.placementId unitId:self.unitId rootViewController:vc];
     _bannerAdView.delegate = self;
     [_bannerAdView loadBannerAd];
     
@@ -109,5 +114,8 @@ static NSString *const MintegralEventErrorDomain = @"com.google.MintegralCustomE
     }
 }
 
+- (void)adViewClosed:(MTGBannerAdView *)adView {
+    //
+}
 
 @end

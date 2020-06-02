@@ -14,6 +14,7 @@
 @interface MintegralCustomEventInterstitialVideo() <MTGInterstitialVideoDelegate>
 
 @property (nonatomic, copy) NSString *adUnit;
+@property (nonatomic, copy) NSString *adPlacement;
 @property (nonatomic,strong) NSTimer  *queryTimer;
 @property (nonatomic, readwrite, strong) MTGInterstitialVideoAdManager *mtgInterstitialVideoAdManager;
 
@@ -41,9 +42,12 @@
         appKey = [mintegralInfoDict objectForKey:@"appKey"];
     }
     
-    NSString *InterstitialAdUnitId = nil;
     if ([mintegralInfoDict objectForKey:@"unitId"]) {
-        InterstitialAdUnitId = [mintegralInfoDict objectForKey:@"unitId"];
+        self.adUnit = [mintegralInfoDict objectForKey:@"unitId"];
+    }
+    
+    if ([mintegralInfoDict objectForKey:@"placementId"]) {
+        self.adPlacement = [mintegralInfoDict objectForKey:@"placementId"];
     }
     
     NSString *consentGDPR = [mintegralInfoDict objectForKey:@"consent"];
@@ -61,10 +65,9 @@
         [MintegralHelper sdkInitialized];
     }
     
-    self.adUnit = InterstitialAdUnitId;
     
     if (!_mtgInterstitialVideoAdManager) {
-        _mtgInterstitialVideoAdManager = [[MTGInterstitialVideoAdManager alloc] initWithUnitID:self.adUnit delegate:self];
+        _mtgInterstitialVideoAdManager = [[MTGInterstitialVideoAdManager alloc] initWithPlacementId:self.adPlacement unitId:self.adUnit delegate:self];
     }
     
     [_mtgInterstitialVideoAdManager loadAd];
@@ -117,7 +120,10 @@
 
 - (void)onInterstitialVideoAdClick:(MTGInterstitialVideoAdManager *_Nonnull)adManager{
     
-    [self.delegate customEventInterstitialWasClicked:self];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(customEventInterstitialWasClicked:)]) {
+        [self.delegate customEventInterstitialWasClicked:self];
+    }
+    // todo
     [self.delegate customEventInterstitialWillLeaveApplication:self];
 }
 

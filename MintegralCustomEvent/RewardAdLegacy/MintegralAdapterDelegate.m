@@ -57,8 +57,8 @@ static int secondCount = 0;
 
 #pragma mark - MVRewardAdManagerDelegate
 
-//MVRewardAdLoadDelegate
-- (void)onVideoAdLoadSuccess:(nullable NSString *)unitId{
+//MTGRewardAdLoadDelegate
+- (void)onVideoAdLoadSuccess:(NSString *)placementId unitId:(NSString *)unitId {
     
     id<GADMRewardBasedVideoAdNetworkConnector> strongConnector = _rewardBasedVideoAdConnector;
     id<GADMRewardBasedVideoAdNetworkAdapter> strongAdapter = _rewardBasedVideoAdAdapter;
@@ -74,7 +74,7 @@ static int secondCount = 0;
     }
 }
 
-- (void)onVideoAdLoadFailed:(nullable NSString *)unitId error:(nonnull NSError *)error{
+- (void)onVideoAdLoadFailed:(NSString *)placementId unitId:(NSString *)unitId error:(NSError *)error {
     
     id<GADMRewardBasedVideoAdNetworkConnector> strongConnector = _rewardBasedVideoAdConnector;
     id<GADMRewardBasedVideoAdNetworkAdapter> strongAdapter = _rewardBasedVideoAdAdapter;
@@ -82,29 +82,30 @@ static int secondCount = 0;
     [strongConnector adapter:strongAdapter didFailToLoadRewardBasedVideoAdwithError:adapterError];
 }
 
-//MVRewardAdShowDelegate
-- (void)onVideoAdShowSuccess:(nullable NSString *)unitId{
+//MTGRewardAdShowDelegate
+- (void)onVideoAdShowSuccess:(NSString *)placementId unitId:(NSString *)unitId {
     
     id<GADMRewardBasedVideoAdNetworkConnector> strongConnector = _rewardBasedVideoAdConnector;
     id<GADMRewardBasedVideoAdNetworkAdapter> strongAdapter = _rewardBasedVideoAdAdapter;
     
     [strongConnector adapterDidOpenRewardBasedVideoAd:strongAdapter];
     [strongConnector adapterDidStartPlayingRewardBasedVideoAd:strongAdapter];
-
-}
-- (void)onVideoAdShowFailed:(nullable NSString *)unitId withError:(nonnull NSError *)error{
-
+    
 }
 
-- (void)onVideoAdClicked:(nullable NSString *)unitId{
+- (void)onVideoAdShowFailed:(NSString *)placementId unitId:(NSString *)unitId withError:(NSError *)error {
+    
+}
+
+- (void)onVideoAdClicked:(NSString *)placementId unitId:(NSString *)unitId {
     
     id<GADMRewardBasedVideoAdNetworkConnector> strongConnector = _rewardBasedVideoAdConnector;
     id<GADMRewardBasedVideoAdNetworkAdapter> strongAdapter = _rewardBasedVideoAdAdapter;
     [strongConnector adapterDidGetAdClick:strongAdapter];
-
+    
 }
 
-- (void)onVideoAdDismissed:(nullable NSString *)unitId withConverted:(BOOL)converted withRewardInfo:(nullable MTGRewardAdInfo *)rewardInfo{
+- (void)onVideoAdDismissed:(NSString *)placementId unitId:(NSString *)unitId withConverted:(BOOL)converted withRewardInfo:(MTGRewardAdInfo *)rewardInfo {
     
     id<GADMRewardBasedVideoAdNetworkConnector> strongConnector = _rewardBasedVideoAdConnector;
     id<GADMRewardBasedVideoAdNetworkAdapter> strongAdapter = _rewardBasedVideoAdAdapter;
@@ -120,14 +121,8 @@ static int secondCount = 0;
     GADAdReward *rewardItem = [[GADAdReward alloc] initWithRewardType:rewardInfo.rewardName
                                rewardAmount:decNum];
     [strongConnector adapter:strongAdapter didRewardUserWithReward:rewardItem];
-    
-    
-    
-    
     [strongConnector adapterDidCloseRewardBasedVideoAd:strongAdapter];
-
 }
-
 
 
 - (void)checkVideoReady{

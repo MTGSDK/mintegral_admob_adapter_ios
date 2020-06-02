@@ -19,6 +19,7 @@
 }
 
 @property(nonatomic,copy)NSString *localAdUnit;
+@property(nonatomic,copy)NSString *localAdPlacement;
 @property(nonatomic,copy)NSString *rewardId;
 @property(nonatomic,copy)NSString *userId;
 
@@ -102,21 +103,22 @@
     [MintegralCustomEventRewardedVideo _initMintegralSDKWithAppId:appId appKey:appKey consentGDPR:consentGDPR];
 
     self.localAdUnit = dict[@"unitId"];
+    self.localAdPlacement = dict[@"placementId"];
     MintegralAdNetworkExtras *extraItem = adConfiguration.extras;
     self.userId = extraItem.userId;
 
     self.rewardedLoadCompletionHandler = completionHandler;
-    [[MTGRewardAdManager sharedInstance] loadVideo:_localAdUnit delegate:self];
+    [[MTGRewardAdManager sharedInstance] loadVideoWithPlacementId:self.localAdPlacement unitId:self.localAdUnit delegate:self];
 }
 
 - (void)presentFromViewController:(nonnull UIViewController *)viewController {
 
-    if ([[MTGRewardAdManager sharedInstance] isVideoReadyToPlay:self.localAdUnit]) {
+    if ([[MTGRewardAdManager sharedInstance] isVideoReadyToPlayWithPlacementId:self.localAdPlacement unitId:self.localAdUnit]) {
 
         NSString *rewardId = self.rewardId;
         NSString *userId = self.userId;
         
-        [[MTGRewardAdManager sharedInstance] showVideo:self.localAdUnit withRewardId:rewardId userId:userId delegate:self viewController:viewController];
+        [[MTGRewardAdManager sharedInstance] showVideoWithPlacementId:self.localAdPlacement unitId:self.localAdUnit withRewardId:rewardId userId:userId delegate:self viewController:viewController];
     }else{
         NSError *error =
           [NSError errorWithDomain:kMintegralAdapterErrorDomain
@@ -128,24 +130,24 @@
 
 #pragma mark - MTGRewardAdLoadDelegate
 
-- (void)onAdLoadSuccess:(nullable NSString *)unitId{
+- (void)onAdLoadSuccess:(NSString *)placementId unitId:(NSString *)unitId {
     
 }
 
-- (void)onVideoAdLoadSuccess:(nullable NSString *)unitId{
-
+- (void)onVideoAdLoadSuccess:(NSString *)placementId unitId:(NSString *)unitId {
     self.delegate = self.rewardedLoadCompletionHandler(self,nil);
 }
 
-- (void)onVideoAdLoadFailed:(nullable NSString *)unitId error:(nonnull NSError *)error{
-
-    self.rewardedLoadCompletionHandler(nil, error);
+- (void)onVideoAdLoadFailed:(NSString *)placementId unitId:(NSString *)unitId error:(NSError *)error {
+    if (self.rewardedLoadCompletionHandler) {
+        self.rewardedLoadCompletionHandler(nil, error);
+    }
 }
 
 
 #pragma mark - MTGRewardAdShowDelegate
 
-- (void)onVideoAdShowSuccess:(nullable NSString *)unitId{
+- (void)onVideoAdShowSuccess:(NSString *)placementId unitId:(NSString *)unitId {
     
     [self.delegate willPresentFullScreenView];
     [self.delegate reportImpression];
@@ -154,39 +156,38 @@
 
 }
 
-- (void)onVideoAdShowFailed:(nullable NSString *)unitId withError:(nonnull NSError *)error{
+- (void)onVideoAdShowFailed:(NSString *)placementId unitId:(NSString *)unitId withError:(NSError *)error {
     
 }
 
-- (void) onVideoPlayCompleted:(nullable NSString *)unitId{
-    
+- (void)onVideoPlayCompleted:(NSString *)placementId unitId:(NSString *)unitId {
+   
     [self.delegate didEndVideo];
 }
 
-- (void) onVideoEndCardShowSuccess:(nullable NSString *)unitId{
+- (void)onVideoEndCardShowSuccess:(NSString *)placementId unitId:(NSString *)unitId {
     
 }
 
-- (void)onVideoAdClicked:(nullable NSString *)unitId{
+- (void)onVideoAdClicked:(NSString *)placementId unitId:(NSString *)unitId {
     [self.delegate reportClick];
 }
 
-- (void)onVideoAdDismissed:(nullable NSString *)unitId withConverted:(BOOL)converted withRewardInfo:(nullable MTGRewardAdInfo *)rewardInfo{
-
+- (void)onVideoAdDismissed:(NSString *)placementId unitId:(NSString *)unitId withConverted:(BOOL)converted withRewardInfo:(MTGRewardAdInfo *)rewardInfo {
+    
     if (!converted) {
         return;
     }
-
+    
     GADAdReward * reward = [[GADAdReward alloc] initWithRewardType:rewardInfo.rewardName
                                                       rewardAmount:[NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%ld",(long)rewardInfo.rewardAmount]]];
     [self.delegate didRewardUserWithReward:reward];
 }
 
-- (void)onVideoAdDidClosed:(nullable NSString *)unitId{
+- (void)onVideoAdDidClosed:(NSString *)placementId unitId:(NSString *)unitId {
     
     [self.delegate willDismissFullScreenView];
     [self.delegate didDismissFullScreenView];
-
 }
 
 

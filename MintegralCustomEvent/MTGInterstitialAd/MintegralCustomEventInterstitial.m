@@ -41,9 +41,14 @@
         appKey = [mintegralintegralInfoDict objectForKey:@"appKey"];
     }
 
-    NSString *InterstitialAdUnitId = nil;
+    NSString *unitId = nil;
     if ([mintegralintegralInfoDict objectForKey:@"unitId"]) {
-        InterstitialAdUnitId = [mintegralintegralInfoDict objectForKey:@"unitId"];
+        unitId = [mintegralintegralInfoDict objectForKey:@"unitId"];
+    }
+    
+    NSString *placementId = nil;
+    if ([mintegralintegralInfoDict objectForKey:@"placementId"]) {
+        placementId = [mintegralintegralInfoDict objectForKey:@"placementId"];
     }
 
     NSString *consentGDPR = [mintegralintegralInfoDict objectForKey:@"consent"];
@@ -68,7 +73,7 @@
     }
     
     if (!_interstitialAd) {
-        _interstitialAd = [[MTGInterstitialAdManager alloc] initWithUnitID:InterstitialAdUnitId adCategory:adCategory];
+        _interstitialAd = [[MTGInterstitialAdManager alloc] initWithPlacementId:placementId unitId:unitId adCategory:adCategory];
     }
     
     [_interstitialAd loadWithDelegate:self];
