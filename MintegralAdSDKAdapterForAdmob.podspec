@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
 
-  sdkVersion = '6.3.5'
+  sdkVersion = '6.4.0'
   
   spec.name         = 'MintegralAdSDKAdapterForAdmob'
   spec.version      =  sdkVersion + '.0'
@@ -14,7 +14,7 @@ Pod::Spec.new do |spec|
   spec.author             = 'Mintegral'
   spec.social_media_url   = 'https://www.facebook.com/mintegral.official'
   spec.platform     = :ios, '8.0'
-  spec.source       = { :git => 'https://github.com/Mintegral-official/mintegral_admob_adapter_ios.git', :tag => spec.version}
+  spec.source       = { :git => 'https://github.com/MTGSDK/mintegral_admob_adapter_ios.git', :tag => spec.version}
   spec.requires_arc = true
   spec.static_framework = true
 
