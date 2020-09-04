@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
 
-  sdkVersion = '6.4.0'
+  sdkVersion = '6.5.0'
   
   spec.name         = 'MintegralAdSDKAdapterForAdmob'
   spec.version      =  sdkVersion + '.0'
