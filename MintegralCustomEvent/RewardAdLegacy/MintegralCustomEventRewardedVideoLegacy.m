@@ -51,7 +51,7 @@
 @implementation MintegralCustomEventRewardedVideoLegacy
 
 + (NSString *)adapterVersion {
-    return MintegralAdapterVersion;
+    return [MTGSDK sdkVersion];
 }
 
 + (Class<GADAdNetworkExtras>)networkExtrasClass {
