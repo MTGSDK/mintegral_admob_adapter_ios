@@ -6,11 +6,18 @@
 //
 
 #import "MintegralCustomEventInterstitial.h"
-#import <MTGSDKInterstitial/MTGInterstitialAdManager.h>
-#import <MTGSDK/MTGSDK.h>
-
 #import "MintegralHelper.h"
 
+#if __has_include(<MTGSDKInterstitial/MTGInterstitialAdManager.h>)
+    #import <MTGSDK/MTGSDK.h>
+    #import <MTGSDKInterstitial/MTGInterstitialAdManager.h>
+#elif __has_include(<MTGSDK/MTGInterstitialAdManager.h>)
+    #import <MTGSDK/MTGSDK.h>
+    #import <MTGSDK/MTGInterstitialAdManager.h>
+#else
+    #import "MTGSDK.h"
+    #import "MTGInterstitialAdManager.h"
+#endif
 
 @interface MintegralCustomEventInterstitial () <MTGInterstitialAdLoadDelegate,MTGInterstitialAdShowDelegate>
 

@@ -9,8 +9,16 @@
 #import "MintegralAdNetworkExtras.h"
 #import "MintegralHelper.h"
 
-#import <MTGSDK/MTGSDK.h>
-#import <MTGSDKReward/MTGRewardAdManager.h>
+#if __has_include(<MTGSDKReward/MTGRewardAdManager.h>)
+    #import <MTGSDK/MTGSDK.h>
+    #import <MTGSDKReward/MTGRewardAdManager.h>
+#elif __has_include(<MTGSDK/MTGRewardAdManager.h>)
+    #import <MTGSDK/MTGSDK.h>
+    #import <MTGSDK/MTGRewardAdManager.h>
+#else
+    #import "MTGSDK.h"
+    #import "MTGRewardAdManager.h"
+#endif
 
 
 @interface MintegralCustomEventRewardedVideo () <MTGRewardAdLoadDelegate,MTGRewardAdShowDelegate>{

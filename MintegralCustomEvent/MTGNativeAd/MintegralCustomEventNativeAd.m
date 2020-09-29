@@ -7,10 +7,13 @@
 
 #import "MintegralCustomEventNativeAd.h"
 #import "MintegralMediatedNativeAd.h"
-#import <MTGSDK/MTGSDK.h>
-
 #import "MintegralHelper.h"
 
+#if __has_include(<MTGSDK/MTGSDK.h>)
+    #import <MTGSDK/MTGSDK.h>
+#else
+    #import "MTGSDK.h"
+#endif
 
 @interface MintegralCustomEventNativeAd()<MTGNativeAdManagerDelegate>
 

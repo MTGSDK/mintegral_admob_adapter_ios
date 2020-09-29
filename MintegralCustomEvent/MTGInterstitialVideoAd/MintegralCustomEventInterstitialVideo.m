@@ -5,11 +5,18 @@
 //
 
 #import "MintegralCustomEventInterstitialVideo.h"
-#import <MTGSDK/MTGSDK.h>
-#import <MTGSDKInterstitialVideo/MTGInterstitialVideoAdManager.h>
-
 #import "MintegralHelper.h"
 
+#if __has_include(<MTGSDKInterstitialVideo/MTGInterstitialVideoAdManager.h>)
+    #import <MTGSDK/MTGSDK.h>
+    #import <MTGSDKInterstitialVideo/MTGInterstitialVideoAdManager.h>
+#elif __has_include(<MTGSDK/MTGInterstitialVideoAdManager.h>)
+    #import <MTGSDK/MTGSDK.h>
+    #import <MTGSDK/MTGInterstitialVideoAdManager.h>
+#else
+    #import "MTGSDK.h"
+    #import "MTGInterstitialVideoAdManager.h"
+#endif
 
 @interface MintegralCustomEventInterstitialVideo() <MTGInterstitialVideoDelegate>
 

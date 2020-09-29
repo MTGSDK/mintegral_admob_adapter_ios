@@ -6,12 +6,20 @@
 //
 
 #import "MintegralAdapterDelegate.h"
-#import <MTGSDK/MTGSDK.h>
-#import <MTGSDKReward/MTGRewardAdManager.h>
 #import "MintegralHelper.h"
 #import "MintegralCustomEventRewardedVideoLegacy.h"
-
 #import <GoogleMobileAds/GoogleMobileAds.h>
+
+#if __has_include(<MTGSDKReward/MTGRewardAdManager.h>)
+    #import <MTGSDK/MTGSDK.h>
+    #import <MTGSDKReward/MTGRewardAdManager.h>
+#elif __has_include(<MTGSDK/MTGRewardAdManager.h>)
+    #import <MTGSDK/MTGSDK.h>
+    #import <MTGSDK/MTGRewardAdManager.h>
+#else
+    #import "MTGSDK.h"
+    #import "MTGRewardAdManager.h"
+#endif
 
 #define TIMERDURATION 3.0
 #define SUMTIME 10.0

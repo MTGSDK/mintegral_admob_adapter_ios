@@ -6,10 +6,22 @@
 //
 
 #import "MintegralCustomEventBannerAd.h"
-#import <MTGSDKBanner/MTGBannerAdView.h>
-#import <MTGSDKBanner/MTGBannerAdViewDelegate.h>
-#import <MTGSDK/MTGSDK.h>
 #import "MintegralHelper.h"
+
+#if __has_include(<MTGSDKBanner/MTGBannerAdView.h>)
+
+    #import <MTGSDK/MTGSDK.h>
+    #import <MTGSDKBanner/MTGBannerAdView.h>
+    #import <MTGSDKBanner/MTGBannerAdViewDelegate.h>
+#elif __has_include(<MTGSDK/MTGBannerAdView.h>)
+    #import <MTGSDK/MTGSDK.h>
+    #import <MTGSDK/MTGBannerAdView.h>
+    #import <MTGSDK/MTGBannerAdViewDelegate.h>
+#else
+    #import "MTGSDK.h"
+    #import "MTGBannerAdView.h"
+    #import "MTGBannerAdViewDelegate.h"
+#endif
 
 static NSString *const MintegralEventErrorDomain = @"com.google.MintegralCustomEvent";
 

@@ -7,7 +7,11 @@
 //
 
 #import "MintegralMediatedNativeAd.h"
-#import <MTGSDK/MTGSDK.h>
+#if __has_include(<MTGSDK/MTGSDK.h>)
+    #import <MTGSDK/MTGSDK.h>
+#else
+    #import "MTGSDK.h"
+#endif
 
 @interface MintegralMediatedNativeAd ()<MTGNativeAdManagerDelegate,MTGMediaViewDelegate>
 
