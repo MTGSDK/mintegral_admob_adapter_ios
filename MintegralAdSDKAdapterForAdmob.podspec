@@ -3,7 +3,7 @@ Pod::Spec.new do |spec|
   sdkVersion = '6.6.3'
   
   spec.name         = 'MintegralAdSDKAdapterForAdmob'
-  spec.version      =  sdkVersion + '.0'
+  spec.version      =  sdkVersion + '.1'
   spec.summary      = 'Mintegral Network CustomEvent for Admob Ad Mediation'
   spec.homepage     = 'http://cdn-adn.rayjump.com/cdn-adn/v2/markdown_v2/index.html?file=sdk-m_sdk-ios&lang=en'
   spec.description  = <<-DESC   
