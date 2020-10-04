@@ -62,7 +62,7 @@
 }
 
 + (GADVersionNumber)version {
-  NSString *versionString = MintegralAdapterVersion;
+  NSString *versionString = [MTGSDK sdkVersion];
   NSArray *versionComponents = [versionString componentsSeparatedByString:@"."];
   GADVersionNumber version = {0};
   if (versionComponents.count == 4) {
