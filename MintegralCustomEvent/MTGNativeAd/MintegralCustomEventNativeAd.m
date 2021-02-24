@@ -118,7 +118,7 @@
     // connector's adapter:didFailAd: method with an error code set to kGADErrorInvalidRequest. It
     // should *not* request an app install ad anyway, and then attempt to map it to the content ad
     // format.
-    if (!([adTypes containsObject:kGADAdLoaderAdTypeUnifiedNative])) {
+    if (!([adTypes containsObject:kGADAdLoaderAdTypeNative])) {
         NSString *description = @"At least one ad type must be selected.";
         NSDictionary *userInfo =
         @{NSLocalizedDescriptionKey : description, NSLocalizedFailureReasonErrorKey : description};

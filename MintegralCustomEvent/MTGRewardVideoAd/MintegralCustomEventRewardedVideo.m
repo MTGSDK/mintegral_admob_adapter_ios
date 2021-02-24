@@ -61,7 +61,7 @@
   return version;
 }
 
-+ (GADVersionNumber)version {
++ (GADVersionNumber)adapterVersion {
   NSString *versionString = [MTGSDK sdkVersion];
   NSArray *versionComponents = [versionString componentsSeparatedByString:@"."];
   GADVersionNumber version = {0};
