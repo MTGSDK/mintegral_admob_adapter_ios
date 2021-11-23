@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
 
-  sdkVersion = '6.7.6'
+  sdkVersion = '7.0.4'
   
   spec.name         = 'MintegralAdSDKAdapterForAdmob'
   spec.version      =  sdkVersion + '.0'
@@ -26,14 +26,14 @@ spec.default_subspecs =  'RewardVideoAdAdapter'
 spec.subspec 'NativeAdAdapter' do |ss|
 
   ss.dependency 'Google-Mobile-Ads-SDK', '> 7.x.x'
-  ss.dependency  'MintegralAdSDK/NativeAd', sdkVersion
+  ss.dependency  'MintegralAdSDK/NativeAd'
   ss.source_files = 'MintegralCustomEvent/MTGCommon/*.{h,m}','MintegralCustomEvent/MTGNativeAd/*.{h,m}'
 end
 
 spec.subspec 'InterstitialVideoAdAdapter' do |ss|
 
   ss.dependency 'Google-Mobile-Ads-SDK', '> 7.x.x'
-  ss.dependency 'MintegralAdSDK/InterstitialVideoAd', sdkVersion
+  ss.dependency 'MintegralAdSDK/InterstitialVideoAd'
   ss.source_files = 'MintegralCustomEvent/MTGCommon/*.{h,m}','MintegralCustomEvent/MTGInterstitialVideoAd/*.{h,m}'
 end
 
@@ -41,7 +41,7 @@ end
 spec.subspec 'RewardVideoAdAdapter' do |ss|
 
   ss.dependency 'Google-Mobile-Ads-SDK', '> 7.x.x'
-  ss.dependency 'MintegralAdSDK/RewardVideoAd', sdkVersion
+  ss.dependency 'MintegralAdSDK/RewardVideoAd'
   ss.source_files = 'MintegralCustomEvent/MTGCommon/*.{h,m}','MintegralCustomEvent/MTGRewardVideoAd/*.{h,m}'
 
 end
@@ -50,7 +50,7 @@ end
 spec.subspec 'InterstitialAdAdapter' do |ss|
 
   ss.dependency 'Google-Mobile-Ads-SDK', '> 7.x.x'
-  ss.dependency 'MintegralAdSDK/InterstitialAd', sdkVersion
+  ss.dependency 'MintegralAdSDK/InterstitialAd'
   ss.source_files = 'MintegralCustomEvent/MTGCommon/*.{h,m}','MintegralCustomEvent/MTGInterstitialAd/*.{h,m}'
 end
 
@@ -58,14 +58,14 @@ end
 spec.subspec 'BannerAdAdapter' do |ss|
 
   ss.dependency 'Google-Mobile-Ads-SDK', '> 7.x.x'
-  ss.dependency 'MintegralAdSDK/BannerAd', sdkVersion
+  ss.dependency 'MintegralAdSDK/BannerAd'
   ss.source_files = 'MintegralCustomEvent/MTGCommon/*.{h,m}','MintegralCustomEvent/MTGBannerAd/*.{h,m}'
 end
 
 spec.subspec 'RewardLegacyAdAdapter' do |ss|
 
   ss.dependency 'Google-Mobile-Ads-SDK', '> 7.x.x'
-  ss.dependency 'MintegralAdSDK/RewardVideoAd', sdkVersion
+  ss.dependency 'MintegralAdSDK/RewardVideoAd'
   ss.source_files = 'MintegralCustomEvent/MTGCommon/*.{h,m}','MintegralCustomEvent/RewardAdLegacy/*.{h,m}'
 
 end
