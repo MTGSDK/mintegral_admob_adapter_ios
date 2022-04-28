@@ -6,22 +6,10 @@
 //
 
 #import "MintegralCustomEventBannerAd.h"
+#import <MTGSDKBanner/MTGBannerAdView.h>
+#import <MTGSDKBanner/MTGBannerAdViewDelegate.h>
+#import <MTGSDK/MTGSDK.h>
 #import "MintegralHelper.h"
-
-#if __has_include(<MTGSDKBanner/MTGBannerAdView.h>)
-
-    #import <MTGSDK/MTGSDK.h>
-    #import <MTGSDKBanner/MTGBannerAdView.h>
-    #import <MTGSDKBanner/MTGBannerAdViewDelegate.h>
-#elif __has_include(<MTGSDK/MTGBannerAdView.h>)
-    #import <MTGSDK/MTGSDK.h>
-    #import <MTGSDK/MTGBannerAdView.h>
-    #import <MTGSDK/MTGBannerAdViewDelegate.h>
-#else
-    #import "MTGSDK.h"
-    #import "MTGBannerAdView.h"
-    #import "MTGBannerAdViewDelegate.h"
-#endif
 
 static NSString *const MintegralEventErrorDomain = @"com.google.MintegralCustomEvent";
 
@@ -32,21 +20,85 @@ static NSString *const MintegralEventErrorDomain = @"com.google.MintegralCustomE
 @property (nonatomic, copy) NSString * unitId;
 @property (nonatomic, copy) NSString * placementId;
 
+
+@property (nonatomic,copy) GADMediationBannerLoadCompletionHandler bannerLoadCompletionHandler;
+@property(nonatomic, weak, nullable) id<GADMediationBannerAdEventDelegate> customEventBannerDelegate;
+
+
 @end
 
 @implementation MintegralCustomEventBannerAd
-@synthesize delegate;
+
++ (nullable Class<GADAdNetworkExtras>)networkExtrasClass {
+    return nil;
+}
+
++ (GADVersionNumber)adSDKVersion {
+    NSString *versionString = MTGBannerSDKVersion;
+  NSArray *versionComponents = [versionString componentsSeparatedByString:@"."];
+  GADVersionNumber version = {0};
+  if (versionComponents.count == 3) {
+    version.majorVersion = [versionComponents[0] integerValue];
+    version.minorVersion = [versionComponents[1] integerValue];
+    version.patchVersion = [versionComponents[2] integerValue];
+  }
+  return version;
+}
+
++ (GADVersionNumber)adapterVersion {
+
+  NSString *versionString = MintegralAdapterVersion;
+  NSArray *versionComponents = [versionString componentsSeparatedByString:@"."];
+  GADVersionNumber version = {0};
+  if (versionComponents.count == 4) {
+    version.majorVersion = [versionComponents[0] integerValue];
+    version.minorVersion = [versionComponents[1] integerValue];
+
+    // Adapter versions have 2 patch versions. Multiply the first patch by 100.
+    version.patchVersion = [versionComponents[2] integerValue] * 100
+      + [versionComponents[3] integerValue];
+  }
+  return version;
+}
+/// Tells the adapter to set up its underlying ad network SDK and perform any necessary prefetching
+/// or configuration work. The adapter must call completionHandler once the adapter can service ad
+/// requests, or if it encounters an error while setting up.
++ (void)setUpWithConfiguration:(nonnull GADMediationServerConfiguration *)configuration
+             completionHandler:(nonnull GADMediationAdapterSetUpCompletionBlock)completionHandler{
+    
+    if (completionHandler) {
+        completionHandler(nil);
+    }
+}
+
+
 
 #pragma mark GADCustomEventBanner implementation
+
+//deprecated:  GADCustomEventInterstitial
 
 - (void)requestBannerAd:(GADAdSize)adSize
               parameter:(NSString *)serverParameter
                   label:(NSString *)serverLabel
                 request:(GADCustomEventRequest *)request {
     // Create the bannerView with the appropriate size.
-    
-    NSDictionary *mintegralInfoDict = [MintegralHelper dictionaryWithJsonString:serverParameter];
-    
+ }
+
+
+
+/// Asks the adapter to load a banner ad with the provided ad configuration. The adapter must call
+/// back completionHandler with the loaded ad, or it may call back with an error. This method is
+/// called on the main thread, and completionHandler must be called back on the main thread.
+- (void)loadBannerForAdConfiguration:(nonnull GADMediationBannerAdConfiguration *)adConfiguration
+                   completionHandler:
+(nonnull GADMediationBannerLoadCompletionHandler)completionHandler{
+
+
+    self.bannerLoadCompletionHandler = completionHandler;
+
+    NSString *parameter = adConfiguration.credentials.settings[@"parameter"];
+    NSDictionary *mintegralInfoDict = [MintegralHelper dictionaryWithJsonString:parameter];
+
     NSString *appId = nil;
     if ([mintegralInfoDict objectForKey:@"appId"]) {
         appId = [mintegralInfoDict objectForKey:@"appId"];
@@ -81,53 +133,78 @@ static NSString *const MintegralEventErrorDomain = @"com.google.MintegralCustomE
     }
     
     UIViewController * vc =  [UIApplication sharedApplication].keyWindow.rootViewController;
-    _bannerAdView = [[MTGBannerAdView alloc] initBannerAdViewWithAdSize:adSize.size placementId:self.placementId unitId:self.unitId rootViewController:vc];
+    
+    _bannerAdView = [[MTGBannerAdView alloc] initBannerAdViewWithAdSize:adConfiguration.adSize.size placementId:self.placementId unitId:self.unitId rootViewController:vc];
     _bannerAdView.delegate = self;
     [_bannerAdView loadBannerAd];
     
 }
 
+
+#pragma mark -- GADMediationBannerAd
+
+/// The banner ad view.
+//@property(nonatomic, readonly, nonnull) UIView *view;
+- (UIView *)view {
+  return self.bannerAdView;
+}
+
+/// Tells the ad to resize the banner. Implement if banner content is resizable.
+- (void)changeAdSizeTo:(GADAdSize)adSize{
+    CGPoint point = _bannerAdView.frame.origin;
+    _bannerAdView.frame = CGRectMake(point.x, point.y, adSize.size.width, adSize.size.height);
+}
+
 #pragma mark -- MTGBannerAdViewDelegate
 - (void)adViewLoadSuccess:(MTGBannerAdView *)adView {
-    [self.delegate customEventBanner:self didReceiveAd:adView];
+
+    if (self.bannerLoadCompletionHandler) {
+        self.customEventBannerDelegate =  self.bannerLoadCompletionHandler(self,nil);
+    }
 }
 
 - (void)adViewLoadFailedWithError:(NSError *)error adView:(MTGBannerAdView *)adView {
-    [self.delegate customEventBanner:self didFailAd:error];
-    
+    if (self.bannerLoadCompletionHandler) {
+        self.bannerLoadCompletionHandler(self,error);
+    }
 }
 
 - (void)adViewWillLogImpression:(MTGBannerAdView *)adView{
     
+    if ([self.customEventBannerDelegate respondsToSelector:@selector(reportImpression)]) {
+        [self.customEventBannerDelegate reportImpression];
+    }
 }
 
 - (void)adViewDidClicked:(MTGBannerAdView *)adView {
-    [self.delegate customEventBannerWasClicked:self];
+    if ([self.customEventBannerDelegate respondsToSelector:@selector(reportClick)]) {
+        [self.customEventBannerDelegate reportClick];
+    }
 }
 
 - (void)adViewWillLeaveApplication:(MTGBannerAdView *)adView {
-    [self.delegate customEventBannerWillLeaveApplication:self];
+    ;
 }
 
 - (void)adViewWillOpenFullScreen:(MTGBannerAdView *)adView {
- 
-    if (self.delegate && [self.delegate respondsToSelector:@selector(customEventBannerWillPresentModal:)]) {
-        [self.delegate customEventBannerWillPresentModal:self];
+    if ([self.customEventBannerDelegate respondsToSelector:@selector(willPresentFullScreenView)]) {
+        [self.customEventBannerDelegate willPresentFullScreenView];
     }
 }
 
 - (void)adViewCloseFullScreen:(MTGBannerAdView *)adView {
-    if (self.delegate && [self.delegate respondsToSelector:@selector(customEventBannerWillDismissModal:)]) {
-        [self.delegate customEventBannerWillDismissModal:self];
+
+    if ([self.customEventBannerDelegate respondsToSelector:@selector(willDismissFullScreenView)]) {
+        [self.customEventBannerDelegate willDismissFullScreenView];
     }
     
-    if (self.delegate && [self.delegate respondsToSelector:@selector(customEventBannerDidDismissModal:)]) {
-        [self.delegate customEventBannerDidDismissModal:self];
+    if ([self.customEventBannerDelegate respondsToSelector:@selector(didDismissFullScreenView)]) {
+        [self.customEventBannerDelegate didDismissFullScreenView];
     }
 }
 
 - (void)adViewClosed:(MTGBannerAdView *)adView {
-    //
+    ;//no ops
 }
 
 @end

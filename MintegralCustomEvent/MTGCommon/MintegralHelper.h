@@ -7,6 +7,9 @@
 
 #import <Foundation/Foundation.h>
 
+#define MintegralAdapterVersion  @"7.1.3.0"
+
+
 
 static NSString *const kMintegralAdapterErrorDomain = @"com.mintegral.MintegralAdapter";
 static NSString *const customEventErrorDomain = @"com.mintegral.CustomEvent";

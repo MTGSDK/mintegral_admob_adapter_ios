@@ -10,7 +10,10 @@
 
 
 
-@interface MintegralCustomEventNativeAd : NSObject<GADCustomEventNativeAd>
+@interface MintegralCustomEventNativeAd : NSObject<GADMediationNativeAd,GADMediationAdapter>
+//deprecated  <GADCustomEventNativeAd>
+
+
 
 
 

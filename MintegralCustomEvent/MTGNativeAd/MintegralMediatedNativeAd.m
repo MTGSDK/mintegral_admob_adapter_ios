@@ -7,13 +7,9 @@
 //
 
 #import "MintegralMediatedNativeAd.h"
-#if __has_include(<MTGSDK/MTGSDK.h>)
-    #import <MTGSDK/MTGSDK.h>
-#else
-    #import "MTGSDK.h"
-#endif
+#import <GoogleMobileAds/Mediation/GADMediatedUnifiedNativeAd.h>
 
-@interface MintegralMediatedNativeAd ()<MTGNativeAdManagerDelegate,MTGMediaViewDelegate>
+@interface MintegralMediatedNativeAd ()<MTGNativeAdManagerDelegate,MTGMediaViewDelegate,GADMediationNativeAd>
 
 @property (nonatomic, readwrite, strong) MTGNativeAdManager *mtgNativeAdManager;
 @property(nonatomic, strong) MTGCampaign *campaign;
@@ -30,7 +26,7 @@
 
 @implementation MintegralMediatedNativeAd
 
-- (nullable instancetype)initWithNativeManager:(nonnull id )nativeManager mtgCampaign:(nonnull id)campaign  withUnitId:(NSString *)unitId videoSupport:(BOOL)videoSupport{
+- (nullable instancetype)initWithNativeManager:(nonnull MTGNativeAdManager *)nativeManager mtgCampaign:(nonnull MTGCampaign *)campaign  withUnitId:(NSString *)unitId videoSupport:(BOOL)videoSupport{
     
     if (!campaign) {
         return nil;
@@ -39,20 +35,20 @@
     self = [super init];
     if (self) {
         
-        _mtgNativeAdManager = (MTGNativeAdManager *)nativeManager;
+        _mtgNativeAdManager = nativeManager;
         _mtgNativeAdManager.delegate = self;
         
-        _campaign = (MTGCampaign *)campaign;
-        if (_campaign.imageUrl) {
+        _campaign = campaign;
+        if (campaign.imageUrl) {
             UIImage *img;
-            NSData *imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:_campaign.imageUrl]];
+            NSData *imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:campaign.imageUrl]];
             img = [UIImage imageWithData:imgData];
             _mappedImages = @[ [[GADNativeAdImage alloc] initWithImage:img] ];
         }
         
         NSURL *iconURL = nil;
-        if (_campaign.iconUrl) {
-            iconURL = [[NSURL alloc] initWithString:_campaign.iconUrl];
+        if (campaign.iconUrl) {
+            iconURL = [[NSURL alloc] initWithString:campaign.iconUrl];
             _mappedLogo = [[GADNativeAdImage alloc] initWithURL:iconURL scale:1.0];
         }
         
@@ -135,7 +131,8 @@
     return self;
 }
 
--  (UIView *GAD_NULLABLE_TYPE)mediaView{
+
+-  (UIView *)mediaView{
     [_mediaView setMediaSourceWithCampaign:_campaign unitId:_unitId];
     return _mediaView;
 }
@@ -167,20 +164,43 @@
 #pragma mark - MTGSDK NativeAdManager Delegate
 - (void)nativeAdDidClick:(nonnull MTGCampaign *)nativeAd nativeManager:(nonnull MTGNativeAdManager *)nativeManager {
     //report to admob
-    [GADMediatedUnifiedNativeAdNotificationSource mediatedNativeAdDidRecordClick:self];
-}
-
-
-- (void)nativeAdClickUrlDidEndJump:(nullable NSURL *)finalUrl
-                             error:(nullable NSError *)error{
+//    [GADMediatedUnifiedNativeAdNotificationSource mediatedNativeAdDidRecordClick:self];
     
-    //    [GADMediatedNativeAdNotificationSource mediatedNativeAdDidDismissScreen:self];
+    if (self.adEventDelegate && [self.adEventDelegate respondsToSelector:@selector(reportClick)]) {
+        [self.adEventDelegate reportClick];
+    }
 }
+
 
 - (void)nativeAdImpressionWithType:(MTGAdSourceType)type nativeManager:(nonnull MTGNativeAdManager *)nativeManager{
     if (type == MTGAD_SOURCE_API_OFFER) {
-        [GADMediatedUnifiedNativeAdNotificationSource mediatedNativeAdDidRecordImpression:self];
+//        [GADMediatedUnifiedNativeAdNotificationSource mediatedNativeAdDidRecordImpression:self];
+        
+        if (self.adEventDelegate && [self.adEventDelegate respondsToSelector:@selector(reportImpression)]) {
+            [self.adEventDelegate reportImpression];
+        }
     }
+}
+
+
+#pragma mark - GADMediationNativeAd
+
+/// Indicates whether the ad handles user clicks. If this method returns YES, the ad must handle
+/// user clicks and notify the Google Mobile Ads SDK of clicks using
+/// -[GADMediationAdEventDelegate reportClick:]. If this method returns NO, the Google Mobile Ads
+/// SDK handles user clicks and notifies the ad of clicks using -[GADMediationNativeAd
+/// didRecordClickOnAssetWithName:view:viewController:].
+- (BOOL)handlesUserClicks{
+    return YES;
+}
+
+/// Indicates whether the ad handles user impressions tracking. If this method returns YES, the
+/// Google Mobile Ads SDK will not track user impressions and the ad must notify the
+/// Google Mobile Ads SDK of impressions using -[GADMediationAdEventDelegate
+/// reportImpression:]. If this method returns NO, the Google Mobile Ads SDK tracks user impressions
+/// and notifies the ad of impressions using -[GADMediationNativeAd didRecordImpression:].
+- (BOOL)handlesUserImpressions{
+    return YES;
 }
 
 #pragma mark - GADMediatedNativeAdDelegate implementation
@@ -203,19 +223,14 @@
     [_mtgNativeAdManager registerViewForInteraction:view withCampaign:_campaign];
 }
 
-- (void)didRenderInView:(nonnull UIView *)view
-       clickableAssetViews:
-           (nonnull NSDictionary<GADUnifiedNativeAssetIdentifier, UIView *> *)clickableAssetViews
-    nonclickableAssetViews:
-        (nonnull NSDictionary<GADUnifiedNativeAssetIdentifier, UIView *> *)nonclickableAssetViews
-         viewController:(nonnull UIViewController *)viewController {
-    
+-(void)didRenderInView:(UIView *)view clickableAssetViews:(NSDictionary<GADNativeAssetIdentifier,UIView *> *)clickableAssetViews nonclickableAssetViews:(NSDictionary<GADNativeAssetIdentifier,UIView *> *)nonclickableAssetViews viewController:(UIViewController *)viewController{
+
     for (UIView *subView in view.subviews) {
         subView.userInteractionEnabled = NO;
     }
-    
+
     [_mtgNativeAdManager registerViewForInteraction:view withCampaign:_campaign];
-    
+
 }
 
 /// Tells the receiver that an impression is recorded. This method is called only once per mediated
@@ -227,10 +242,8 @@
 /// Tells the receiver that a user click is recorded on the asset named |assetName|. Full screen
 /// actions should be presented from viewController. This method is called only if
 /// -[GADMAdNetworkAdapter handlesUserClicks] returns NO.
-- (void)didRecordClickOnAssetWithName:(nonnull GADUnifiedNativeAssetIdentifier)assetName
-                                 view:(nonnull UIView *)view
-                       viewController:(nonnull UIViewController *)viewController {
-    
+-(void)didRecordClickOnAssetWithName:(GADNativeAssetIdentifier)assetName view:(UIView *)view viewController:(UIViewController *)viewController{
+    ;
 }
 
 /// Tells the receiver that it has untracked |view|. This method is called when the mediated native
@@ -238,7 +251,7 @@
 /// impressions and clicks. The method may also be called with a nil view when the view in which the
 /// mediated native ad has rendered is deallocated.
 - (void)didUntrackView:(nullable UIView *)view {
-    
+    ;
 }
 
 
@@ -250,7 +263,64 @@
 
 - (void)nativeAdDidClick:(nonnull MTGCampaign *)nativeAd mediaView:(MTGMediaView *)mediaView {
     
-    [GADMediatedUnifiedNativeAdNotificationSource mediatedNativeAdDidRecordClick:self];
-    
+//    [GADMediatedUnifiedNativeAdNotificationSource mediatedNativeAdDidRecordClick:self];
+
+    if (self.adEventDelegate && [self.adEventDelegate respondsToSelector:@selector(reportClick)]) {
+        [self.adEventDelegate reportClick];
+    }
 }
+
+- (void)nativeAdImpressionWithType:(MTGAdSourceType)type mediaView:(MTGMediaView *)mediaView{
+ 
+//    [GADMediatedUnifiedNativeAdNotificationSource mediatedNativeAdDidRecordImpression:self];
+
+    if (self.adEventDelegate && [self.adEventDelegate respondsToSelector:@selector(reportImpression)]) {
+        [self.adEventDelegate reportImpression];
+    }
+}
+
+
+- (void)MTGMediaViewWillEnterFullscreen:(MTGMediaView *)mediaView{
+  
+    if (self.adEventDelegate && [self.adEventDelegate respondsToSelector:@selector(willPresentFullScreenView)]) {
+        [self.adEventDelegate willPresentFullScreenView];
+    }
+}
+
+- (void)MTGMediaViewDidExitFullscreen:(MTGMediaView *)mediaView{
+   
+    if (self.adEventDelegate && [self.adEventDelegate respondsToSelector:@selector(willDismissFullScreenView)]) {
+        [self.adEventDelegate willDismissFullScreenView];
+    }
+    if (self.adEventDelegate && [self.adEventDelegate respondsToSelector:@selector(didDismissFullScreenView)]) {
+        [self.adEventDelegate didDismissFullScreenView];
+    }
+}
+
+
+/*
+ 
+ @protocol GADMediationAdEventDelegate <NSObject>
+
+ /// Notifies Google Mobile Ads SDK that an impression occurred on the GADMediationAd.
+ - (void)reportImpression;
+
+ /// Notifies Google Mobile Ads SDK that a click occurred on the GADMediationAd.
+ - (void)reportClick;
+
+ /// Notifies Google Mobile Ads SDK that the GADMediationAd will present a full screen modal view.
+ /// Maps to adWillPresentFullScreenContent: for full screen ads.
+ - (void)willPresentFullScreenView;
+
+ /// Notifies Google Mobile Ads SDK that the GADMediationAd failed to present with an error.
+ - (void)didFailToPresentWithError:(nonnull NSError *)error;
+
+ /// Notifies Google Mobile Ads SDK that the GADMediationAd will dismiss a full screen modal view.
+ - (void)willDismissFullScreenView;
+
+ /// Notifies Google Mobile Ads SDK that the GADMediationAd finished dismissing a full screen modal
+ /// view.
+ - (void)didDismissFullScreenView;
+
+ */
 @end

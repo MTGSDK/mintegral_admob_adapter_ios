@@ -7,11 +7,6 @@
 
 #import "MintegralHelper.h"
 #import <MTGSDK/MTGSDK.h>
-#if __has_include(<MTGSDK/MTGSDK.h>)
-    #import <MTGSDK/MTGSDK.h>
-#else
-    #import "MTGSDK.h"
-#endif
 
 static BOOL mintegralSDKInitialized = NO;
 
@@ -27,7 +22,7 @@ static BOOL mintegralSDKInitialized = NO;
 #ifdef DEBUG
     
     if (DEBUG) {
-        NSLog(@"The version of current Mintegral Adapter is: %@",[MTGSDK sdkVersion]);
+        NSLog(@"The version of current Mintegral Adapter is: %@",MintegralAdapterVersion);
     }
 #endif
     

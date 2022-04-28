@@ -1,5 +1,5 @@
 //
-//  MintegralCustomEventInterstitialVideo.h
+//  MintegralCustomEventNewInterstitial.h
 //
 //  Copyright © 2017年 Mintegral. All rights reserved.
 //
@@ -8,7 +8,7 @@
 #import <GoogleMobileAds/GoogleMobileAds.h>
 
 
-@interface MintegralCustomEventInterstitialVideo : NSObject<GADMediationInterstitialAd,GADMediationAdapter>
+@interface MintegralCustomEventNewInterstitial : NSObject<GADMediationInterstitialAd,GADMediationAdapter>
 //deprecated  <GADCustomEventInterstitial>
 
 

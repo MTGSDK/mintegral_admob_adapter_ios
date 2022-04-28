@@ -1,26 +1,22 @@
 //
-//  MintegralCustomEventInterstitialVideo.m
+//  MintegralCustomEventNewInterstitial.m
 //
 //  Copyright © 2017年 Mintegral. All rights reserved.
 //
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-
-
-#import "MintegralCustomEventInterstitialVideo.h"
+#import "MintegralCustomEventNewInterstitial.h"
 #import <MTGSDK/MTGSDK.h>
-#import <MTGSDKInterstitialVideo/MTGInterstitialVideoAdManager.h>
+#import <MTGSDKNewInterstitial/MTGSDKNewInterstitial.h>
 
 #import "MintegralHelper.h"
 
 
-@interface MintegralCustomEventInterstitialVideo() <MTGInterstitialVideoDelegate>
+@interface MintegralCustomEventNewInterstitial() <MTGNewInterstitialAdDelegate>
 
 @property (nonatomic, copy) NSString *adUnit;
 @property (nonatomic, copy) NSString *adPlacement;
 
-@property (nonatomic, readwrite, strong) MTGInterstitialVideoAdManager *interstitialAdManager;
+@property (nonatomic, readwrite, strong) MTGNewInterstitialAdManager *interstitialAdManager;
 
 @property (nonatomic,copy) GADMediationInterstitialLoadCompletionHandler interstitialLoadCompletionHandler;
 @property(nonatomic, weak, nullable) id<GADMediationInterstitialAdEventDelegate> customEventInterstitialDelegate;
@@ -28,7 +24,8 @@
 
 @end
 
-@implementation MintegralCustomEventInterstitialVideo
+@implementation MintegralCustomEventNewInterstitial
+
 
 
 + (nullable Class<GADAdNetworkExtras>)networkExtrasClass {
@@ -36,8 +33,8 @@
 }
 
 + (GADVersionNumber)adSDKVersion {
+  NSString *versionString = MTGNewInterstitialSDKVersion;
 
-  NSString *versionString = MTGInterstitialVideoSDKVersion;
   NSArray *versionComponents = [versionString componentsSeparatedByString:@"."];
   GADVersionNumber version = {0};
   if (versionComponents.count == 3) {
@@ -48,7 +45,7 @@
   return version;
 }
 
-+(GADVersionNumber)adapterVersion{
++ (GADVersionNumber)adapterVersion {
 
   NSString *versionString = MintegralAdapterVersion;
   NSArray *versionComponents = [versionString componentsSeparatedByString:@"."];
@@ -133,7 +130,7 @@ completionHandler{
     
     
     if (!_interstitialAdManager) {
-        _interstitialAdManager = [[MTGInterstitialVideoAdManager alloc] initWithPlacementId:self.adPlacement unitId:self.adUnit delegate:self];
+        _interstitialAdManager = [[MTGNewInterstitialAdManager alloc] initWithPlacementId:self.adPlacement unitId:self.adUnit delegate:self];
     }
     
     [_interstitialAdManager loadAd];
@@ -141,13 +138,16 @@ completionHandler{
 
 /// Present the interstitial ad as a modal view using the provided view controller.
 - (void)presentFromViewController:(nonnull UIViewController *)viewController {
+
     [_interstitialAdManager showFromViewController:viewController];
 }
 
-
 #pragma mark MVInterstitialVideoAdLoadDelegate implementation
 
-- (void)onInterstitialVideoLoadSuccess:(MTGInterstitialVideoAdManager *_Nonnull)adManager
+/**
+ *  Called when the ad is successfully load , and is ready to be displayed
+ */
+- (void)newInterstitialAdResourceLoadSuccess:(MTGNewInterstitialAdManager *_Nonnull)adManager
 {
     if (self.interstitialLoadCompletionHandler) {
         self.customEventInterstitialDelegate = self.interstitialLoadCompletionHandler(self,nil);
@@ -155,7 +155,11 @@ completionHandler{
 }
 
 
-- (void)onInterstitialVideoLoadFail:(nonnull NSError *)error adManager:(MTGInterstitialVideoAdManager *_Nonnull)adManager
+/**
+ *  Called when there was an error loading the ad.
+ *  @param error       - error object that describes the exact error encountered when loading the ad.
+ */
+- (void)newInterstitialAdLoadFail:(nonnull NSError *)error adManager:(MTGNewInterstitialAdManager *_Nonnull)adManager
 {
     if (self.interstitialLoadCompletionHandler) {
         NSError *_error = [NSError errorWithDomain:customEventErrorDomain code:error.code userInfo:error.userInfo];
@@ -163,18 +167,25 @@ completionHandler{
     }
 }
 
-- (void)onInterstitialVideoShowSuccess:(MTGInterstitialVideoAdManager *_Nonnull)adManager
+/**
+ *  Called when the ad displayed successfully
+ */
+- (void)newInterstitialAdShowSuccess:(MTGNewInterstitialAdManager *_Nonnull)adManager
 {
     if (self.customEventInterstitialDelegate && [self.customEventInterstitialDelegate respondsToSelector:@selector(willPresentFullScreenView)]) {
         [self.customEventInterstitialDelegate willPresentFullScreenView];
     }
-    
+
     if (self.customEventInterstitialDelegate && [self.customEventInterstitialDelegate respondsToSelector:@selector(reportImpression)]) {
         [self.customEventInterstitialDelegate reportImpression];
     }
 }
 
-- (void)onInterstitialVideoShowFail:(nonnull NSError *)error adManager:(MTGInterstitialVideoAdManager *_Nonnull)adManager
+/**
+ *  Called when the ad failed to display
+ *  @param error       - error object that describes the exact error encountered when showing the ad.
+ */
+- (void)newInterstitialAdShowFail:(nonnull NSError *)error adManager:(MTGNewInterstitialAdManager *_Nonnull)adManager
 {
     if (self.customEventInterstitialDelegate && [self.customEventInterstitialDelegate respondsToSelector:@selector(didFailToPresentWithError:)]) {
         [self.customEventInterstitialDelegate didFailToPresentWithError:error];
@@ -182,18 +193,33 @@ completionHandler{
 }
 
 
-- (void)onInterstitialVideoAdDismissedWithConverted:(BOOL)converted adManager:(MTGInterstitialVideoAdManager *_Nonnull)adManager
+/**
+ *  Called when the ad has been dismissed from being displayed, and control will return to your app
+ *  @param converted   - BOOL describing whether the ad has converted
+ */
+- (void)newInterstitialAdDismissedWithConverted:(BOOL)converted adManager:(MTGNewInterstitialAdManager *_Nonnull)adManager
 {
     if (self.customEventInterstitialDelegate && [self.customEventInterstitialDelegate respondsToSelector:@selector(willDismissFullScreenView)]) {
         [self.customEventInterstitialDelegate willDismissFullScreenView];
     }
-    
+}
+
+/**
+ *  Called when the ad  did closed;
+ */
+- (void)newInterstitialAdDidClosed:(MTGNewInterstitialAdManager *_Nonnull)adManager{
+
     if (self.customEventInterstitialDelegate && [self.customEventInterstitialDelegate respondsToSelector:@selector(didDismissFullScreenView)]) {
         [self.customEventInterstitialDelegate didDismissFullScreenView];
     }
 }
 
-- (void)onInterstitialVideoAdClick:(MTGInterstitialVideoAdManager *_Nonnull)adManager{
+
+/**
+ *  Called when the ad is clicked
+ */
+- (void)newInterstitialAdClicked:(MTGNewInterstitialAdManager *_Nonnull)adManager
+{
     
     if (self.customEventInterstitialDelegate && [self.customEventInterstitialDelegate respondsToSelector:@selector(reportClick)]) {
         [self.customEventInterstitialDelegate reportClick];
@@ -203,7 +229,6 @@ completionHandler{
 
 
 
-#pragma GCC diagnostic pop
 
 
 

@@ -7,18 +7,18 @@
 
 #import "MintegralCustomEventNativeAd.h"
 #import "MintegralMediatedNativeAd.h"
+#import <MTGSDK/MTGSDK.h>
+
 #import "MintegralHelper.h"
 
-#if __has_include(<MTGSDK/MTGSDK.h>)
-    #import <MTGSDK/MTGSDK.h>
-#else
-    #import "MTGSDK.h"
-#endif
 
 @interface MintegralCustomEventNativeAd()<MTGNativeAdManagerDelegate>
 
 @property (nonatomic, readwrite, strong) MTGNativeAdManager *mtgNativeAdManager;
-@property (nonatomic, readwrite, strong) NSArray *adTypes;
+
+
+@property (nonatomic,copy) GADMediationNativeLoadCompletionHandler nativeLoadCompletionHandler;
+@property(nonatomic, weak, nullable) id<GADMediationNativeAdEventDelegate> customEventNativeDelegate;
 
 @property (nonatomic, readwrite, copy) NSString * localNativeUnitId;
 @property (nonatomic, copy) NSString *localNativePlacementId;
@@ -30,17 +30,74 @@
 
 @implementation MintegralCustomEventNativeAd
 
-@synthesize delegate;
+@synthesize body;
+@synthesize callToAction;
+@synthesize advertiser;
+@synthesize extraAssets;
+@synthesize headline;
+@synthesize icon;
+@synthesize images;
+@synthesize price;
+@synthesize starRating;
+@synthesize store;
 
 
-- (void)requestNativeAdWithParameter:(NSString *)serverParameter
-                             request:(GADCustomEventRequest *)request
-                             adTypes:(NSArray *)adTypes
-                             options:(NSArray *)options
-                  rootViewController:(UIViewController *)rootViewController
-{
 
-    NSDictionary *mintegralInfoDict = [MintegralHelper dictionaryWithJsonString:serverParameter];
++ (nullable Class<GADAdNetworkExtras>)networkExtrasClass {
+    return nil;
+}
+
+/// Returns the adapter version.
++ (GADVersionNumber)adapterVersion{
+    NSString *versionString = MintegralAdapterVersion;
+    NSArray *versionComponents = [versionString componentsSeparatedByString:@"."];
+    GADVersionNumber version = {0};
+    if (versionComponents.count == 4) {
+      version.majorVersion = [versionComponents[0] integerValue];
+      version.minorVersion = [versionComponents[1] integerValue];
+
+      // Adapter versions have 2 patch versions. Multiply the first patch by 100.
+      version.patchVersion = [versionComponents[2] integerValue] * 100
+        + [versionComponents[3] integerValue];
+    }
+    return version;
+  }
+
+/// Returns the ad SDK version.
++ (GADVersionNumber)adSDKVersion{
+    NSString *versionString = MTGSDKVersion;
+    NSArray *versionComponents = [versionString componentsSeparatedByString:@"."];
+    GADVersionNumber version = {0};
+    if (versionComponents.count == 3) {
+      version.majorVersion = [versionComponents[0] integerValue];
+      version.minorVersion = [versionComponents[1] integerValue];
+      version.patchVersion = [versionComponents[2] integerValue];
+    }
+    return version;
+  }
+
+
+/*
+ deprecated:  GADCustomEventInterstitial
+
+ - (void)requestNativeAdWithParameter:(NSString *)serverParameter
+                              request:(GADCustomEventRequest *)request
+                              adTypes:(NSArray *)adTypes
+                              options:(NSArray *)options
+                   rootViewController:(UIViewController *)rootViewController
+ */
+
+/// Asks the adapter to load a native ad with the provided ad configuration. The adapter must call
+/// back completionHandler with the loaded ad, or it may call back with an error. This method is
+/// called on the main thread, and completionHandler must be called back on the main thread.
+-(void)loadNativeAdForAdConfiguration:(GADMediationNativeAdConfiguration *)adConfiguration completionHandler:(GADMediationNativeLoadCompletionHandler)completionHandler{
+    
+    
+    self.nativeLoadCompletionHandler = completionHandler;
+
+    NSString *parameter = adConfiguration.credentials.settings[@"parameter"];
+    NSDictionary *mintegralInfoDict = [MintegralHelper dictionaryWithJsonString:parameter];
+
 
     NSString *appId = nil;
     if ([mintegralInfoDict objectForKey:@"appId"]) {
@@ -93,7 +150,7 @@
         _video_enabled = [[mintegralInfoDict objectForKey:@"video_enabled"] boolValue];
     }
     //add num parameter
-    MTGAdTemplateType reqNum = [mintegralInfoDict objectForKey:@"reqNum"] ? [[mintegralInfoDict objectForKey:@"reqNum"] integerValue]:1;
+//    MTGAdTemplateType reqNum = [mintegralInfoDict objectForKey:@"reqNum"] ? [[mintegralInfoDict objectForKey:@"reqNum"] integerValue]:1;
     
     MTGAdCategory adCategory = MTGAD_CATEGORY_ALL;
     if ([mintegralInfoDict objectForKey:@"adCategory"]) {
@@ -118,19 +175,26 @@
     // connector's adapter:didFailAd: method with an error code set to kGADErrorInvalidRequest. It
     // should *not* request an app install ad anyway, and then attempt to map it to the content ad
     // format.
-    if (!([adTypes containsObject:kGADAdLoaderAdTypeNative])) {
+    
+    BOOL containImageAdLoader = NO;
+    for (id option in adConfiguration.options) {
+        if ([option isKindOfClass:GADNativeAdImageAdLoaderOptions.class]) {
+            containImageAdLoader = YES;
+        }
+    }
+    if (!containImageAdLoader) {
         NSString *description = @"At least one ad type must be selected.";
         NSDictionary *userInfo =
         @{NSLocalizedDescriptionKey : description, NSLocalizedFailureReasonErrorKey : description};
         NSError *error =
-        [NSError errorWithDomain:customEventErrorDomain code:kGADErrorInvalidRequest userInfo:userInfo];
+        [NSError errorWithDomain:customEventErrorDomain code:GADErrorInvalidRequest userInfo:userInfo];
 
-        [self.delegate customEventNativeAd:self didFailToLoadWithError:error];
-
+        if (self.nativeLoadCompletionHandler) {
+            self.nativeLoadCompletionHandler(self,error);
+        }
         return;
     }
     
-    self.adTypes = adTypes;
 
     
     // The Google Mobile Ads SDK requires the image assets to be downloaded automatically unless the
@@ -141,42 +205,26 @@
     // object from your network's SDK, and before calling the connector's
     // adapter:didReceiveMediatedNativeAd: method.
     
-    if(_video_enabled){
-        self.mtgNativeAdManager = [[MTGNativeAdManager alloc] initWithPlacementId:_localNativePlacementId unitID:_localNativeUnitId fbPlacementId:fbPlacementId
-                videoSupport:_video_enabled forNumAdsRequested: reqNum
-                presentingViewController:nil];
-    }else{
-        self.mtgNativeAdManager = [[MTGNativeAdManager alloc] initWithPlacementId:_localNativePlacementId unitID:_localNativeUnitId fbPlacementId:fbPlacementId  supportedTemplates:templates autoCacheImage:autoCacheImage adCategory:adCategory presentingViewController:nil];
-    }
+//    if(_video_enabled){
+//        self.mtgNativeAdManager = [[MTGNativeAdManager alloc] initWithPlacementId:_localNativePlacementId unitID:_localNativeUnitId fbPlacementId:fbPlacementId
+//                videoSupport:_video_enabled forNumAdsRequested: reqNum
+//                presentingViewController:nil];
+//    }else{
+        
+        self.mtgNativeAdManager = [[MTGNativeAdManager alloc] initWithPlacementId:_localNativePlacementId unitID:_localNativeUnitId supportedTemplates:templates autoCacheImage:autoCacheImage adCategory:adCategory presentingViewController:adConfiguration.topViewController];
+//    }
     
+
     self.mtgNativeAdManager.delegate = self;
     [self.mtgNativeAdManager loadAds];
+
 }
 
-/// Indicates if the custom event handles user clicks. Return YES if the custom event should handle
-/// user clicks. In this case, the Google Mobile Ads SDK doesn't track user clicks and the custom
-/// event must notify the Google Mobile Ads SDK of clicks using
-/// +[GADMediatedNativeAdNotificationSource mediatedNativeAdDidRecordClick:]. Return NO if the
-/// custom event doesn't handles user clicks. In this case, the Google Mobile Ads SDK tracks user
-/// clicks itself and the custom event is notified of user clicks via -[GADMediatedNativeAdDelegate
-/// mediatedNativeAd:didRecordClickOnAssetWithName:view:viewController:].
-- (BOOL)handlesUserClicks{
-    return YES;
-}
-
-/// Indicates if the custom event handles user impressions tracking. If this method returns YES, the
-/// Google Mobile Ads SDK will not track user impressions and the custom event must notify the
-/// Google Mobile Ads SDK of impressions using +[GADMediatedNativeAdNotificationSource
-/// mediatedNativeAdDidR ecordImpression:]. If this method returns NO,
-/// the Google Mobile Ads SDK tracks user impressions and notifies the custom event of impressions
-/// using -[GADMediatedNativeAdDelegate mediatedNativeAdDidRecordImpression:].
-- (BOOL)handlesUserImpressions{
-    return YES;
-}
 
 
 
 #pragma mark - nativeAdManager delegate
+
 - (void)nativeAdsLoaded:(nullable NSArray *)nativeAds nativeManager:(nonnull MTGNativeAdManager *)nativeManager {
 
     if (nativeAds.count == 0) {
@@ -184,10 +232,13 @@
         NSString *description = @"No Fill.";
         NSDictionary *userInfo =
         @{NSLocalizedDescriptionKey : description, NSLocalizedFailureReasonErrorKey : description};
+        
+        
         NSError *error =
-        [NSError errorWithDomain:customEventErrorDomain code:kGADErrorNoFill userInfo:userInfo];
-        [self.delegate customEventNativeAd:self didFailToLoadWithError:error];
-
+        [NSError errorWithDomain:customEventErrorDomain code:GADErrorNoFill userInfo:userInfo];
+        if (self.nativeLoadCompletionHandler) {
+            self.nativeLoadCompletionHandler(self,error);
+        }
         return;
     }
 
@@ -196,16 +247,24 @@
     
     MintegralMediatedNativeAd *mediatedAd =
     [[MintegralMediatedNativeAd alloc] initWithNativeManager:self.mtgNativeAdManager mtgCampaign:campaign withUnitId:self.localNativeUnitId videoSupport:self.video_enabled];
-    [self.delegate customEventNativeAd:self didReceiveMediatedUnifiedNativeAd:mediatedAd];
     
+    if (self.nativeLoadCompletionHandler) {
+        self.customEventNativeDelegate = self.nativeLoadCompletionHandler(mediatedAd,nil);
+    }
+    mediatedAd.adEventDelegate = self.customEventNativeDelegate;
+
 }
 
-- (void)nativeAdsFailedToLoadWithError:(nonnull NSError *)error nativeManager:(nonnull MTGNativeAdManager *)nativeManager {
-}
-- (void)nativeAdsFailedToLoadWithError:(nonnull NSError *)error {
+
+//- (void)nativeAdsFailedToLoadWithError:(nonnull NSError *)error
+- (void)nativeAdsFailedToLoadWithError:(nonnull NSError *)error nativeManager:(nonnull MTGNativeAdManager *)nativeManager
+{
     
     NSError *customError = [NSError errorWithDomain:customEventErrorDomain code:error.code userInfo:error.userInfo];
-    [self.delegate customEventNativeAd:self didFailToLoadWithError:customError];
+    if (self.nativeLoadCompletionHandler) {
+        self.nativeLoadCompletionHandler(self,customError);
+    }
 }
+
 
 @end

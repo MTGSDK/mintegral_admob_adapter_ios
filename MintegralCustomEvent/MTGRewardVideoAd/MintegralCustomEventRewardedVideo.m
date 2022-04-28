@@ -9,16 +9,8 @@
 #import "MintegralAdNetworkExtras.h"
 #import "MintegralHelper.h"
 
-#if __has_include(<MTGSDKReward/MTGRewardAdManager.h>)
-    #import <MTGSDK/MTGSDK.h>
-    #import <MTGSDKReward/MTGRewardAdManager.h>
-#elif __has_include(<MTGSDK/MTGRewardAdManager.h>)
-    #import <MTGSDK/MTGSDK.h>
-    #import <MTGSDK/MTGRewardAdManager.h>
-#else
-    #import "MTGSDK.h"
-    #import "MTGRewardAdManager.h"
-#endif
+#import <MTGSDK/MTGSDK.h>
+#import <MTGSDKReward/MTGRewardAdManager.h>
 
 
 @interface MintegralCustomEventRewardedVideo () <MTGRewardAdLoadDelegate,MTGRewardAdShowDelegate>{
@@ -45,12 +37,11 @@
 
     // OPTIONAL: Create your own class implementing GADAdNetworkExtras and return that class type
     // here for your publishers to use. This class does not use extras.
-    
     return [MintegralAdNetworkExtras class];
 }
 
 + (GADVersionNumber)adSDKVersion {
-  NSString *versionString = [MTGSDK sdkVersion];
+  NSString *versionString = MTGRewardVideoSDKVersion;
   NSArray *versionComponents = [versionString componentsSeparatedByString:@"."];
   GADVersionNumber version = {0};
   if (versionComponents.count == 3) {
@@ -61,8 +52,9 @@
   return version;
 }
 
-+ (GADVersionNumber)adapterVersion {
-  NSString *versionString = [MTGSDK sdkVersion];
++(GADVersionNumber)adapterVersion{
+
+  NSString *versionString = MintegralAdapterVersion;
   NSArray *versionComponents = [versionString componentsSeparatedByString:@"."];
   GADVersionNumber version = {0};
   if (versionComponents.count == 4) {

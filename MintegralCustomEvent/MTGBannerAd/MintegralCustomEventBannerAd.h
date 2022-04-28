@@ -10,7 +10,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MintegralCustomEventBannerAd : NSObject <GADCustomEventBanner>
+@interface MintegralCustomEventBannerAd : NSObject <GADMediationBannerAd,GADMediationAdapter>
+//deprecated: <GADCustomEventBanner>
 
 @end
 
