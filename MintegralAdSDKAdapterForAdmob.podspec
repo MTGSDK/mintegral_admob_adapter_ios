@@ -13,7 +13,7 @@ Pod::Spec.new do |spec|
   spec.license      = { :type => 'MIT', :file => 'LICENSE' }
   spec.author             = 'Mintegral'
   spec.social_media_url   = 'https://www.facebook.com/mintegral.official'
-  spec.platform     = :ios, '9.0'
+  spec.platform     = :ios, '10.0'
   spec.source       = { :git => 'https://github.com/MTGSDK/mintegral_admob_adapter_ios.git', :tag => spec.version}
   spec.requires_arc = true
   spec.static_framework = true
