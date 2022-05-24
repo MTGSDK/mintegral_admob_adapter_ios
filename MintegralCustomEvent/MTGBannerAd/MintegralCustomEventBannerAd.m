@@ -136,6 +136,7 @@ static NSString *const MintegralEventErrorDomain = @"com.google.MintegralCustomE
     
     _bannerAdView = [[MTGBannerAdView alloc] initBannerAdViewWithAdSize:adConfiguration.adSize.size placementId:self.placementId unitId:self.unitId rootViewController:vc];
     _bannerAdView.delegate = self;
+    _bannerAdView.autoRefreshTime = 0;
     [_bannerAdView loadBannerAd];
     
 }

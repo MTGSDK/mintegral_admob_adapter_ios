@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
 
-  sdkVersion = '7.1.0'
+  sdkVersion = '7.1.5'
   
   spec.name         = 'MintegralAdSDKAdapterForAdmob'
   spec.version      =  sdkVersion + '.0'
@@ -33,7 +33,7 @@ end
 spec.subspec 'InterstitialVideoAdAdapter' do |ss|
 
   ss.dependency 'Google-Mobile-Ads-SDK', '~> 9.0.0'
-  ss.dependency 'MintegralAdSDK/InterstitialVideoAd', '~> 7.1.0'
+  ss.dependency 'MintegralAdSDK/InterstitialVideoAd', '~> 7.1.5'
   ss.source_files = 'MintegralCustomEvent/MTGCommon/*.{h,m}','MintegralCustomEvent/MTGInterstitialVideoAd/*.{h,m}'
 end
 
@@ -41,7 +41,7 @@ end
 spec.subspec 'RewardVideoAdAdapter' do |ss|
 
   ss.dependency 'Google-Mobile-Ads-SDK', '~> 9.0.0'
-  ss.dependency 'MintegralAdSDK/RewardVideoAd', '~> 7.1.0'
+  ss.dependency 'MintegralAdSDK/RewardVideoAd', '~> 7.1.5'
   ss.source_files = 'MintegralCustomEvent/MTGCommon/*.{h,m}','MintegralCustomEvent/MTGRewardVideoAd/*.{h,m}'
 
 end
@@ -50,7 +50,7 @@ end
 spec.subspec 'InterstitialAdAdapter' do |ss|
 
   ss.dependency 'Google-Mobile-Ads-SDK', '~> 9.0.0'
-  ss.dependency 'MintegralAdSDK/NewInterstitialAd', '~>7.1.0'
+  ss.dependency 'MintegralAdSDK/NewInterstitialAd', '~>7.1.5'
   ss.source_files = 'MintegralCustomEvent/MTGCommon/*.{h,m}','MintegralCustomEvent/MTGNewInterstitialAd/*.{h,m}'
 end
 
@@ -58,7 +58,7 @@ end
 spec.subspec 'BannerAdAdapter' do |ss|
 
   ss.dependency 'Google-Mobile-Ads-SDK', '~> 9.0.0'
-  ss.dependency 'MintegralAdSDK/BannerAd', '~> 7.1.0'
+  ss.dependency 'MintegralAdSDK/BannerAd', '~> 7.1.5'
   ss.source_files = 'MintegralCustomEvent/MTGCommon/*.{h,m}','MintegralCustomEvent/MTGBannerAd/*.{h,m}'
 end
 
