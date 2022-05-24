@@ -26,7 +26,7 @@ spec.default_subspecs =  'RewardVideoAdAdapter'
 spec.subspec 'NativeAdAdapter' do |ss|
 
   ss.dependency 'Google-Mobile-Ads-SDK', '~> 9.0.0'
-  ss.dependency  'MintegralAdSDK/NativeAd', '~> 7.1.0'
+  ss.dependency  'MintegralAdSDK/NativeAd', '~> 7.1.5'
   ss.source_files = 'MintegralCustomEvent/MTGCommon/*.{h,m}','MintegralCustomEvent/MTGNativeAd/*.{h,m}'
 end
 
