@@ -40,10 +40,8 @@
         
         _campaign = campaign;
         if (campaign.imageUrl) {
-            UIImage *img;
-            NSData *imgData = [NSData dataWithContentsOfURL:[NSURL URLWithString:campaign.imageUrl]];
-            img = [UIImage imageWithData:imgData];
-            _mappedImages = @[ [[GADNativeAdImage alloc] initWithImage:img] ];
+            NSURL * imageUrl = [[NSURL alloc] initWithString:campaign.imageUrl];
+            _mappedImages = @[[[GADNativeAdImage alloc] initWithURL:imageUrl scale:1.0]];
         }
         
         NSURL *iconURL = nil;
